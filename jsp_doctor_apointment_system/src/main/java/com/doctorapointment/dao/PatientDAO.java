@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 public class PatientDAO {
 	private static final Logger log = LoggerFactory.getLogger(PatientDAO.class);
 
-	// insert patient
-	public boolean createPatient(Patient patient) {
+	// add patient
+	public boolean addPatient(Patient patient) {
 		String query = "INSERT INTO patient (id_pat, nom_pat, prenom_pat, date_nais, mdp_pat, email_pat)"
 				+ " VALUES (?, ?, ?, ?, ?, ?)";
 
