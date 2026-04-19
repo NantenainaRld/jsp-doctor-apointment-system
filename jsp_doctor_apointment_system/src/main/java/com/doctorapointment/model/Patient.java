@@ -29,13 +29,13 @@ public class Patient {
 	public LocalDate getDateNais() {
 		return this.dateNais;
 	}
-	
+
 	// setters
 	public void setIdPat(String idPat) {
 		this.idPat = idPat;
 	}
 	public void setNomPat(String nomPat) {
-		this.nomPat = nomPat;
+		this.nomPat = nomPat.toUpperCase();
 	}
 	public void setPrenomPat(String prenomPat) {
 		this.prenomPat = prenomPat;

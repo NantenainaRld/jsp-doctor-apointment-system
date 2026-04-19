@@ -8,7 +8,7 @@ public class ServiceResult {
 		this.success = success;
 		this.errorMessage = errorMessage;
 	}
-	
+
 	public boolean isSuccess() {
 		return this.success;
 	}
