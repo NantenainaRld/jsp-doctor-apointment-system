@@ -81,7 +81,7 @@ public class PatientService {
 			patient.setMdpPat(hashedPass);
 		}
 		catch(IllegalArgumentException e) {
-			log.error("Error during hashing mdp_pat : '{}' ", e);
+			log.error("Error during hashing mdp_pat", e);
 			return new ServiceResult(false,"Une erreur est survenue, veuillez réssayer.");
 		}
 
@@ -94,5 +94,15 @@ public class PatientService {
 			return new ServiceResult(true, null);
 		}
 		return new ServiceResult(false, "Erreur lors de l'ajout de patient.");
+	}
+	
+	// login patient
+	public ServiceResult loginPatient(String email, String password) {
+		Patient patient = patDAO.findByEmail(email);
+		
+		// Validation: login
+		if(patient == null) {
+			return new ServiceResult(false, "");
+		}
 	}
 }

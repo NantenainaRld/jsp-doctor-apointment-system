@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class PatientDAO {
 
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {
-			log.error("Error creating patient : '{}' ", e);
+			log.error("Error creating patient", e);
 			return false;
 		}
 	}
@@ -52,7 +53,7 @@ public class PatientDAO {
 
 			return false;
 		} catch (SQLException e) {
-			log.error("Error verifying email : '{}' ", e);
+			log.error("Error verifying email", e);
 			return null;
 		}
 	}
@@ -73,8 +74,33 @@ public class PatientDAO {
 	            }
 	        }
 	    } catch (SQLException e) {
-	        log.error("Error getting next patient ID : '{}' ", e);
+	        log.error("Error getting next patient ID", e);
 	    }
 	    return "P001";
+	}
+	
+	//  find by email
+	public Patient findByEmail(String email) {
+		String query = "SELECT id_pat, nom_pat, prenom_pat, date_nais, mdp_pat, email_pat FROM patient WHERE email_pat = ?";
+		try(Connection conn = DatabaseConnection.getConnection();
+					PreparedStatement stmt = conn.prepareStatement(query)){
+			stmt.setString(1, email);
+			ResultSet rs = stmt.executeQuery();
+			
+			if(rs.next()) {
+				Patient patient = new Patient();
+				patient.setIdPat(rs.getString("id_pat"));
+				patient.setNomPat(rs.getString("nom_pat"));
+				patient.setPrenomPat(rs.getString("prenom_pat"));
+				patient.setDateNais(rs.getObject("date_nais", LocalDate.class));
+				patient.setEmailPat(rs.getString("email_pat"));
+				patient.setMdpPat(rs.getString("mdp_pat"));
+			}
+		}
+		catch(SQLException e) {
+			log.error("Error finding patient by email : {}", email,e);
+		}
+		
+		return null;
 	}
 }
