@@ -32,7 +32,7 @@ public class PatientDAO {
 
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {
-			log.error("Error creating patient", e);
+			log.error("Error adding patient", e);
 			return false;
 		}
 	}
@@ -53,7 +53,7 @@ public class PatientDAO {
 
 			return false;
 		} catch (SQLException e) {
-			log.error("Error verifying email", e);
+			log.error("Error verifying email_pat", e);
 			return null;
 		}
 	}
@@ -95,6 +95,8 @@ public class PatientDAO {
 				patient.setDateNais(rs.getObject("date_nais", LocalDate.class));
 				patient.setEmailPat(rs.getString("email_pat"));
 				patient.setMdpPat(rs.getString("mdp_pat"));
+				
+				return patient;
 			}
 		}
 		catch(SQLException e) {

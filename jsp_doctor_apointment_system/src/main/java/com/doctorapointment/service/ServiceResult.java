@@ -21,4 +21,7 @@ public class ServiceResult {
 	public String getErrorMessage() {
 		return this.errorMessage;
 	}
+	public Object getData() {
+		return this.data;
+	}
 }

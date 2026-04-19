@@ -97,12 +97,19 @@ public class PatientService {
 	}
 	
 	// login patient
-	public ServiceResult loginPatient(String email, String password) {
+	public ServiceResult loginPatient(String email, String mdpPat) {
 		Patient patient = patDAO.findByEmail(email);
 		
 		// Validation: login
 		if(patient == null) {
-			return new ServiceResult(false, "");
+			return new ServiceResult(false, "Email ou mot de passe incorrect.");
 		}
+		if(!BCrypt.checkpw(mdpPat, patient.getMdpPat())) {
+			return new ServiceResult(false, "Email ou mot de passe incorrect.");
+		}
+		
+		patient.setMdpPat(null);
+		
+		return new ServiceResult(true,null, patient);
 	}
 }

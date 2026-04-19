@@ -5,11 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class EnvLoader {
     private static final Logger log = LoggerFactory.getLogger(EnvLoader.class);
-    
-    static {
-        log.info("EnvLoader initialized. Reading from system environment variables.");
-    }
-    
+        
     public static String get(String key) {
         String value = System.getenv(key);
         

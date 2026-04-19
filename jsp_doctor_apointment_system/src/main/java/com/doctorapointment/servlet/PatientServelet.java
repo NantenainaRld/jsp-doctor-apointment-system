@@ -2,6 +2,7 @@ package com.doctorapointment.servlet;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,30 +43,34 @@ public class PatientServelet extends HttpServlet {
 			throws ServletException, IOException {
 		String action = request.getParameter("action");
 
-	    // handle login
-	    HttpSession session = request.getSession(false);
-	    if (session != null && session.getAttribute("user") != null) {
-	        response.sendRedirect(request.getContextPath() + "/patient?action=dashboard");
-	        return;
-	    }
+		HttpSession session = request.getSession(false);
 
-	    if (action == null) {
-	        response.sendRedirect(request.getContextPath() + "/patient?action=login");
-	        return;
-	    }
+		if (action == null) {
+			response.sendRedirect(request.getContextPath() + "/patient?action=login");
+			return;
+		}
 
-	    switch (action) {
-	        case "register":
-	            request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
-	            break;
-	        case "login":
-//	            request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
-	            break;
-	        default:
-	            request.setAttribute("message", "Page non trouvée");
-	            request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
-	            break;
-	    }
+		switch (action) {
+		// page: register
+		case "register":
+			if (session != null && session.getAttribute("patient") != null) {
+				response.sendRedirect(request.getContextPath() + "/patient?action=dashboard");
+				return;
+			}
+			request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+			return;
+		case "login":
+			if (session != null && session.getAttribute("patient") != null) {
+				response.sendRedirect(request.getContextPath() + "/patient?action=dashboard");
+				return;
+			}
+			request.getRequestDispatcher("/WEB-INF/jsp/login_patient.jsp").forward(request, response);
+			return;
+		default:
+			request.setAttribute("message", "Page non trouvée");
+			request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
+			break;
+		}
 	}
 
 	/**
@@ -91,7 +96,7 @@ public class PatientServelet extends HttpServlet {
 
 				// handle login
 				HttpSession session = request.getSession(false);
-				if(session != null && session.getAttribute("patient") != null) {
+				if (session != null && session.getAttribute("patient") != null) {
 					response.sendRedirect(request.getContextPath() + "/patient?action=dashboard");
 					return;
 				}
@@ -102,21 +107,70 @@ public class PatientServelet extends HttpServlet {
 				patient.setMdpPat(request.getParameter("mdp_pat"));
 				patient.setEmailPat(request.getParameter("email_pat"));
 
-				LocalDate dateNais = LocalDate.parse(request.getParameter("date_nais"));
+				String dateStr = request.getParameter("date_nais");
+
+				if (dateStr == null || dateStr.trim().isEmpty()) {
+					request.setAttribute("error_message", "La date de naissance est requise.");
+					request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+					return;
+				}
+
+				LocalDate dateNais;
+				try {
+					dateNais = LocalDate.parse(dateStr);
+				} catch (DateTimeParseException e) {
+					request.setAttribute("error_message",
+							"Format de date invalide. Utilisez AAAA-MM-JJ (ex: 2000-01-31)");
+					request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+					return;
+				}
+
+				int year = dateNais.getYear();
+				int currentYear = LocalDate.now().getYear();
+				if (year < 1900 || year > currentYear) {
+					request.setAttribute("error_message",
+							"Année invalide. Utilisez une année entre 1900 et " + currentYear);
+					request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
+					return;
+				}
+
 				patient.setDateNais(dateNais);
 
 				// call service
 				ServiceResult serRes = patSer.registerPatient(patient);
 
 				// handle result
-				if(serRes.isSuccess()) {
+				if (serRes.isSuccess()) {
 					response.sendRedirect("login");
 					return;
 				}
-				request.setAttribute("error_message",serRes.getErrorMessage());
+				request.setAttribute("error_message", serRes.getErrorMessage());
 				request.getRequestDispatcher("/WEB-INF/jsp/register.jsp").forward(request, response);
 				return;
-				
+
+			// login
+			case "login":
+				String email = request.getParameter("email_pat");
+				String password = request.getParameter("mdp_pat");
+
+				if (email == null || password == null) {
+					request.setAttribute("error_message", "Email et mot de passe requis");
+					request.getRequestDispatcher("/WEB-INF/jsp/login_patient.jsp").forward(request, response);
+					return;
+				}
+
+				ServiceResult loginResult = patSer.loginPatient(email, password);
+
+				if (loginResult.isSuccess()) {
+					Patient user = (Patient) loginResult.getData();
+					request.getSession().setAttribute("patient", user);
+					response.sendRedirect(request.getContextPath() + "/patient?action=dashboard");
+				} else {
+					request.setAttribute("error_message", loginResult.getErrorMessage());
+					request.getRequestDispatcher("/WEB-INF/jsp/login_patient.jsp").forward(request, response);
+				}
+				return;
+
 			// default
 			default:
 				request.setAttribute("message", "L'action demandée n'est pas trouvée");
