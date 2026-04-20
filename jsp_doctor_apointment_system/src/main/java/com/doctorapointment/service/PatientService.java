@@ -1,6 +1,7 @@
 package com.doctorapointment.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
@@ -79,10 +80,9 @@ public class PatientService {
 		try {
 			String hashedPass = BCrypt.hashpw(mdpPat, BCrypt.gensalt());
 			patient.setMdpPat(hashedPass);
-		}
-		catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			log.error("Error during hashing mdp_pat", e);
-			return new ServiceResult(false,"Une erreur est survenue, veuillez réssayer.");
+			return new ServiceResult(false, "Une erreur est survenue, veuillez réssayer.");
 		}
 
 		// set id_pat
@@ -90,26 +90,48 @@ public class PatientService {
 
 		// Register patient
 		boolean addPatResult = patDAO.registerPatient(patient);
-		if(addPatResult) {
+		if (addPatResult) {
 			return new ServiceResult(true, null);
 		}
 		return new ServiceResult(false, "Erreur lors de l'ajout de patient.");
 	}
-	
+
 	// login patient
 	public ServiceResult loginPatient(String email, String mdpPat) {
 		Patient patient = patDAO.findByEmail(email);
-		
+
 		// Validation: login
-		if(patient == null) {
+		if (patient == null) {
 			return new ServiceResult(false, "Email ou mot de passe incorrect.");
 		}
-		if(!BCrypt.checkpw(mdpPat, patient.getMdpPat())) {
+		if (!BCrypt.checkpw(mdpPat, patient.getMdpPat())) {
 			return new ServiceResult(false, "Email ou mot de passe incorrect.");
 		}
-		
+
 		patient.setMdpPat(null);
-		
-		return new ServiceResult(true,null, patient);
+
+		return new ServiceResult(true, null, patient);
+	}
+
+	// filter patient
+	public ServiceResult filterPatient(String search, String dateNaisDebut, String dateNaisFin) {
+		search = search == null ? "" : search;
+		LocalDate dNaisDebut = null, dNaisFin = null;
+
+		try {
+			if (dateNaisDebut != null && !dateNaisDebut.isEmpty()) {
+				dNaisDebut = LocalDate.parse(dateNaisDebut);
+			}
+			if (dateNaisFin != null && !dateNaisFin.isEmpty()) {
+				dNaisFin = LocalDate.parse(dateNaisFin);
+			}
+		} catch (DateTimeParseException e) {
+			log.error("Error filtering patient", e);
+			return new ServiceResult(false, "Une erreur technique est survenue"
+					+ " lors de la recherche de la recherche des patients. Veuillez réssayer");
+		}
+
+		// dao: filter patient
+		return new ServiceResult(true, null, PatientDAO.filterPatient(search, dNaisDebut, dNaisFin));
 	}
 }

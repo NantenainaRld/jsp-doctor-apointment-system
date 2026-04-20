@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,34 +62,34 @@ public class PatientDAO {
 
 	// get next patient ID
 	public String getNextPatientId() {
-	    String query = "SELECT MAX(id_pat) FROM patient";
+		String query = "SELECT MAX(id_pat) FROM patient";
 
-	    try (Connection conn = DatabaseConnection.getConnection();
-	         Statement stmt = conn.createStatement();
-	         ResultSet rs = stmt.executeQuery(query)) {
+		try (Connection conn = DatabaseConnection.getConnection();
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(query)) {
 
-	        if (rs.next()) {
-	            String maxId = rs.getString(1);
-	            if (maxId != null && maxId.startsWith("P")) {
-	                int num = Integer.parseInt(maxId.substring(1)) + 1;
-	                return String.format("P%03d", num);
-	            }
-	        }
-	    } catch (SQLException e) {
-	        log.error("Error getting next patient ID", e);
-	    }
-	    return "P001";
+			if (rs.next()) {
+				String maxId = rs.getString(1);
+				if (maxId != null && maxId.startsWith("P")) {
+					int num = Integer.parseInt(maxId.substring(1)) + 1;
+					return String.format("P%03d", num);
+				}
+			}
+		} catch (SQLException e) {
+			log.error("Error getting next patient ID", e);
+		}
+		return "P001";
 	}
-	
-	//  find by email
+
+	// find by email
 	public Patient findByEmail(String email) {
 		String query = "SELECT id_pat, nom_pat, prenom_pat, date_nais, mdp_pat, email_pat FROM patient WHERE email_pat = ?";
-		try(Connection conn = DatabaseConnection.getConnection();
-					PreparedStatement stmt = conn.prepareStatement(query)){
+		try (Connection conn = DatabaseConnection.getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query)) {
 			stmt.setString(1, email);
 			ResultSet rs = stmt.executeQuery();
-			
-			if(rs.next()) {
+
+			if (rs.next()) {
 				Patient patient = new Patient();
 				patient.setIdPat(rs.getString("id_pat"));
 				patient.setNomPat(rs.getString("nom_pat"));
@@ -95,14 +97,68 @@ public class PatientDAO {
 				patient.setDateNais(rs.getObject("date_nais", LocalDate.class));
 				patient.setEmailPat(rs.getString("email_pat"));
 				patient.setMdpPat(rs.getString("mdp_pat"));
-				
+
 				return patient;
 			}
+		} catch (SQLException e) {
+			log.error("Error finding patient by email : {}", email, e);
 		}
-		catch(SQLException e) {
-			log.error("Error finding patient by email : {}", email,e);
-		}
-		
+
 		return null;
+	}
+
+	// Filter patient
+	public static List<Patient> filterPatient(String search, LocalDate dateNaisDebut, LocalDate dateNaisFin) {
+		String query = "SELECT id_pat, nom_pat, prenom_pat, date_nais, email_pat FROM patient WHERE "
+				+ "(id_pat LIKE ? OR CONCAT(nom_pat, ' ', prenom_pat) LIKE ? OR email_pat LIKE ?) ";
+
+		// search: date_nais
+		if (dateNaisDebut == null) {
+			if (dateNaisFin != null) {
+				query += "AND date_nais <= ? ";
+			}
+		} else {
+			if (dateNaisFin == null) {
+				query += "AND date_nais >= ? ";
+			} else {
+				query += "AND date_nais BETWEEN ? AND ? ";
+			}
+		}
+
+		// patient object list
+		List<Patient> listPat = new ArrayList<>();
+
+		try (Connection conn = DatabaseConnection.getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query)) {
+			search = "%" + search + "%";
+			stmt.setString(1, search);
+			stmt.setString(2, search);
+			stmt.setString(3, search);
+			// search: date_nais
+			int index = 4;
+			if (dateNaisDebut != null) {
+				stmt.setObject(index++, dateNaisDebut);
+			}
+			if (dateNaisFin != null) {
+				stmt.setObject(index++, dateNaisFin);
+			}
+
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				Patient patient = new Patient();
+				patient.setIdPat(rs.getString("id_pat"));
+				patient.setNomPat(rs.getString("nom_pat"));
+				patient.setPrenomPat(rs.getString("prenom_pat"));
+				patient.setEmailPat(rs.getString("email_pat"));
+				patient.setDateNais(rs.getObject("date_nais", LocalDate.class));
+
+				listPat.add(patient);
+			}
+		} catch (SQLException e) {
+			log.error("Error filtering patient", e);
+		}
+
+		return listPat;
 	}
 }
