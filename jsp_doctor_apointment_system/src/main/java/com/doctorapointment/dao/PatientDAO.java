@@ -126,6 +126,7 @@ public class PatientDAO {
 				query += "AND date_nais BETWEEN ? AND ? ";
 			}
 		}
+		query += "ORDER BY nom_pat";
 
 		// patient object list
 		List<Patient> listPat = new ArrayList<>();
