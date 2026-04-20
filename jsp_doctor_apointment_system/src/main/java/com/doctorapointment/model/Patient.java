@@ -32,7 +32,7 @@ public class Patient {
 
 	// setters
 	public void setIdPat(String idPat) {
-		this.idPat = idPat;
+		this.idPat = idPat.toUpperCase();
 	}
 	public void setNomPat(String nomPat) {
 		this.nomPat = nomPat.toUpperCase();

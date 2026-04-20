@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.doctorapointment.model.Patient;
@@ -32,12 +33,24 @@ public class AdminServelet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		PatientService patSer = new PatientService();
-		List<Patient> listPat =(List<Patient>) patSer.filterPatient("","2007-01-01", null).getData();
+		// =========== list patient ==========
+//		PatientService patSer = new PatientService();
+//		List<Patient> listPat =(List<Patient>) patSer.filterPatient("","2007-01-01", null).getData();
+//		
+//		for(Patient pat: listPat) {
+//			response.getWriter().print(pat.getEmailPat());
+//		}
 		
-		for(Patient pat: listPat) {
-			response.getWriter().print(pat.getEmailPat());
-		}
+		// =============== update patient ============
+		PatientService patSer = new PatientService();
+		Patient patient = new Patient();
+		patient.setIdPat("p004");
+		patient.setNomPat("update_nom-");
+		patient.setDateNais(LocalDate.parse("2012-01-01"));
+		patient.setEmailPat("update@u.update");
+		patient.setMdpPat("00000000");
+		
+		response.getWriter().print(patSer.updatePatient(patient).getErrorMessage());
 	}
 
 	/**

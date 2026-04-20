@@ -161,4 +161,58 @@ public class PatientDAO {
 
 		return listPat;
 	}
+
+	// Update patient
+	public boolean updatePatient(Patient patient) {
+		String query = "UPDATE patient SET nom_pat = ?, prenom_pat = ?, date_nais = ?, email_pat = ? ";
+		if (patient.getMdpPat() != null && !patient.getMdpPat().isEmpty()) {
+			query += ", mdp_pat = ? ";
+		}
+		query += "WHERE id_pat = ? ";
+		
+		try(Connection conn = DatabaseConnection.getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query)){
+			stmt.setString(1,patient.getNomPat());
+			stmt.setString(2,patient.getPrenomPat());
+			stmt.setObject(3,patient.getDateNais());
+			stmt.setString(4,patient.getEmailPat());
+			int index = 5;
+			if(patient.getMdpPat() != null && !patient.getMdpPat().isEmpty()) {
+				stmt.setString(index++, patient.getMdpPat());
+			}
+			stmt.setString(index, patient.getIdPat());
+			
+			return stmt.executeUpdate() >= 0;
+		}
+		catch(SQLException e) {
+			log.error("Error updating patient", e);
+			return false;
+		}
+	}
+	
+	// Find by id_pat
+	public Patient findById(String idPat) {
+		String query = "SELECT id_pat, nom_pat, prenom_pat, date_nais, mdp_pat, email_pat FROM patient WHERE id_pat = ?";
+		try (Connection conn = DatabaseConnection.getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query)) {
+			stmt.setString(1, idPat);
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				Patient patient = new Patient();
+				patient.setIdPat(rs.getString("id_pat"));
+				patient.setNomPat(rs.getString("nom_pat"));
+				patient.setPrenomPat(rs.getString("prenom_pat"));
+				patient.setDateNais(rs.getObject("date_nais", LocalDate.class));
+				patient.setEmailPat(rs.getString("email_pat"));
+				patient.setMdpPat(rs.getString("mdp_pat"));
+
+				return patient;
+			}
+		} catch (SQLException e) {
+			log.error("Error finding patient by id : {}", idPat, e);
+		}
+
+		return null;
+	}
 }
