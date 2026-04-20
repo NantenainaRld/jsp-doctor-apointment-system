@@ -128,7 +128,7 @@ public class PatientService {
 		} catch (DateTimeParseException e) {
 			log.error("Error filtering patient", e);
 			return new ServiceResult(false, "Une erreur technique est survenue"
-					+ " lors de la recherche de la recherche des patients. Veuillez réssayer");
+					+ " lors de la recherche des patients. Veuillez réssayer");
 		}
 
 		// dao: filter patient
@@ -199,7 +199,7 @@ public class PatientService {
 		patient.setEmailPat(emailPat);
 
 		if (!mdpPat.isEmpty()) {
-			// email hash
+			// mdp hash
 			try {
 				String hashedPass = BCrypt.hashpw(mdpPat, BCrypt.gensalt());
 				patient.setMdpPat(hashedPass);
@@ -215,5 +215,20 @@ public class PatientService {
 			return new ServiceResult(true, null);
 		}
 		return new ServiceResult(false, "Une erreur est survenue lors de la modification des informations du patient.");
+	}
+	
+	// delete patient
+	public ServiceResult deletePatient(Patient patient) {
+		patient.setIdPat(patient.getIdPat().trim());
+		
+		// Find patient
+		Patient patFindId = patDAO.findById(patient.getIdPat());
+		if(patFindId == null) {
+			return new ServiceResult(false, "Le patient avec l'ID <b>" + patient.getIdPat() + "</b> n'existe pas.");
+		}
+		
+		boolean deleted = patDAO.deletePatient(patient.getIdPat());
+		return new ServiceResult(deleted, deleted ? null : "Une erreur est survenue"
+				+ " lors de la suppréssion du compte de patient");
 	}
 }

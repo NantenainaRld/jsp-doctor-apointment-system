@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.crypto.Data;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,5 +216,21 @@ public class PatientDAO {
 		}
 
 		return null;
+	}
+	
+	// Delete patient
+	public boolean deletePatient(String idPat) {
+		String query = "DELETE FROM patient WHERE id_pat = ?";
+		
+		try(Connection conn = DatabaseConnection.getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query)){
+			stmt.setString(1,idPat);
+			
+			return stmt.executeUpdate() > 0;
+		}
+		catch(SQLException e) {
+			log.error("Error deleting patient",e);
+			return false;
+		}
 	}
 }

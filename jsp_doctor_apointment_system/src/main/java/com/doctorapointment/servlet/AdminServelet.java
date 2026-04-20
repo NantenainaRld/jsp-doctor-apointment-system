@@ -42,15 +42,22 @@ public class AdminServelet extends HttpServlet {
 //		}
 		
 		// =============== update patient ============
+//		PatientService patSer = new PatientService();
+//		Patient patient = new Patient();
+//		patient.setIdPat("p004");
+//		patient.setNomPat("update_nom-");
+//		patient.setDateNais(LocalDate.parse("2012-01-01"));
+//		patient.setEmailPat("update@u.update");
+//		patient.setMdpPat("00000000");
+//		
+//		response.getWriter().print(patSer.updatePatient(patient).getErrorMessage());
+		
+		// =============== delete patient ===========
 		PatientService patSer = new PatientService();
 		Patient patient = new Patient();
-		patient.setIdPat("p004");
-		patient.setNomPat("update_nom-");
-		patient.setDateNais(LocalDate.parse("2012-01-01"));
-		patient.setEmailPat("update@u.update");
-		patient.setMdpPat("00000000");
+		patient.setIdPat("p009");
 		
-		response.getWriter().print(patSer.updatePatient(patient).getErrorMessage());
+		response.getWriter().print(patSer.deletePatient(patient).getErrorMessage());
 	}
 
 	/**
