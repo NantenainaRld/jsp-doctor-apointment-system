@@ -89,12 +89,22 @@ public class MedecinService {
         if (idMed.isEmpty() || mdpMed.isEmpty()) return new ServiceResult(false,
                 "L'identifiant et mot de passe requis");
         Medecin medecin = medDAO.findById(idMed);
-        if(medecin == null || !BCrypt.checkpw(mdpMed, medecin.getMdpMed())){
-            return new ServiceResult(false, "Identifiant ou mot de passe requis.");
+        if (medecin == null || !BCrypt.checkpw(mdpMed, medecin.getMdpMed())) {
+            return new ServiceResult(false, "Identifiant ou mot de passe incorrect.");
         }
 
         medecin.setMdpMed(null);
 
-        return new ServiceResult(true,null, medecin);
+        return new ServiceResult(true, null, medecin);
+    }
+
+    // filter medecin
+    public ServiceResult filterMedecin(String search, String specialite, String taux) {
+        search = search == null ? "" : search;
+        specialite = specialite == null ? "" : specialite.trim();
+        taux = taux == null ? "" : taux.trim().toLowerCase();
+
+        return new ServiceResult(true,
+                null, MedecinDAO.filterMedecin(search, specialite, taux));
     }
 }

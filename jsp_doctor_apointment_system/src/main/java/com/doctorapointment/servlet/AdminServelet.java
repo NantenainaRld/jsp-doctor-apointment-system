@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -19,31 +20,31 @@ import com.doctorapointment.service.PatientService;
  */
 @WebServlet("/admin")
 public class AdminServelet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public AdminServelet() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AdminServelet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// =========== list patient ==========
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+     * response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // =========== list patient ==========
 //		PatientService patSer = new PatientService();
 //		List<Patient> listPat =(List<Patient>) patSer.filterPatient("","2007-01-01", null).getData();
 //		
 //		for(Patient pat: listPat) {
 //			response.getWriter().print(pat.getEmailPat());
 //		}
-		
-		// =============== update patient ============
+
+        // =============== update patient ============
 //		PatientService patSer = new PatientService();
 //		Patient patient = new Patient();
 //		patient.setIdPat("p004");
@@ -53,15 +54,15 @@ public class AdminServelet extends HttpServlet {
 //		patient.setMdpPat("00000000");
 //		
 //		response.getWriter().print(patSer.updatePatient(patient).getErrorMessage());
-		
-		// =============== delete patient ===========
+
+        // =============== delete patient ===========
 //		PatientService patSer = new PatientService();
 //		Patient patient = new Patient();
 //		patient.setIdPat("p009");
 //		
 //		response.getWriter().print(patSer.deletePatient(patient).getErrorMessage());
-		
-		// ============ add medecin =============
+
+        // ============ add medecin =============
 //		MedecinService medSer = new MedecinService();
 //		Medecin medecin = new Medecin();
 //		medecin.setNomMed("roger");
@@ -71,19 +72,24 @@ public class AdminServelet extends HttpServlet {
 //
 //		response.getWriter().print(medSer.registerMedecin(medecin).getErrorMessage());
 
-		// ============= login medecin =============
-		MedecinService medSer = new MedecinService();
-		response.getWriter().print(medSer.loginMedecin("m002","000000").getErrorMessage());
-	}
+        // ============= login medecin =============
+//		MedecinService medSer = new MedecinService();
+//		response.getWriter().print(medSer.loginMedecin("m002","000000").getErrorMessage());
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
-	}
+        // ========== filter medecin =============
+        MedecinService medSer = new MedecinService();
+        response.getWriter().print(((List<Medecin>) (medSer.filterMedecin("",
+                "anestesiste", "desc").getData())).get(0).getIdMed());
+    }
+
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     * response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // TODO Auto-generated method stub
+        doGet(request, response);
+    }
 
 }

@@ -6,11 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.doctorapointment.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.doctorapointment.model.Medecin;
+
+import javax.xml.transform.Result;
 
 public class MedecinDAO {
     private static final Logger log = LoggerFactory.getLogger(MedecinDAO.class);
@@ -85,5 +90,51 @@ public class MedecinDAO {
         }
 
         return null;
+    }
+
+    // filter medecin
+    public static List<Medecin> filterMedecin(String search, String specialite, String taux) {
+        String query = "SELECT id_med, nom_med, prenom_med, specialite, lieu, taux_horaire " +
+                "FROM medecin WHERE (id_med LIKE ? OR CONCAT(nom_med, ' ' , prenom_med) LIKE ? " +
+                "OR lieu LIKE ?) ";
+
+        // search : specialite
+        if (!specialite.isEmpty()) query += "AND specialite = ? ";
+        // search : order by taux_horaire
+        if (taux.equals("desc")) {
+            query += "ORDER BY taux_horaire DESC ";
+        } else if (taux.equals("asc")) {
+            query += "ORDER BY taux_horaire ASC ";
+        } else {
+            query += "ORDER BY id_med ASC ";
+        }
+
+        List<Medecin> listMed = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            search = "%" + search + "%";
+            stmt.setString(1, search);
+            stmt.setString(2, search);
+            stmt.setString(3, search);
+            if (!specialite.isEmpty()) stmt.setString(4,  specialite );
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Medecin medecin = new Medecin();
+                medecin.setIdMed(rs.getString("id_med"));
+                medecin.setNomMed(rs.getString("nom_med"));
+                medecin.setPrenomMed(rs.getString("prenom_med"));
+                medecin.setSpecialite(rs.getString("specialite"));
+                medecin.setLieu(rs.getString("lieu"));
+                medecin.setTauxHoraire(rs.getDouble("taux_horaire"));
+
+                listMed.add(medecin);
+            }
+        } catch (SQLException e) {
+            log.error("Error filtering medecin", e);
+        }
+
+        return listMed;
     }
 }
