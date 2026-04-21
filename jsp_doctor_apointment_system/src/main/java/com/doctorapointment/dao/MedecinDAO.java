@@ -20,7 +20,7 @@ import javax.xml.transform.Result;
 public class MedecinDAO {
     private static final Logger log = LoggerFactory.getLogger(MedecinDAO.class);
 
-    // Register medecin
+    // register medecin
     public boolean registerMedecin(Medecin medecin) {
         String query = "INSERT INTO medecin (id_med, nom_med, prenom_med, specialite,"
                 + " lieu, mdp_med, taux_horaire) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -163,4 +163,20 @@ public class MedecinDAO {
             return false;
         }
     }
+
+    // delete medecin
+    public static boolean deleteMedecin(String idMed) {
+        String query = "DELETE FROM medecin WHERE id_med = ? ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, idMed);
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            log.error("Error deleting patient");
+            return false;
+        }
+    }
+
 }

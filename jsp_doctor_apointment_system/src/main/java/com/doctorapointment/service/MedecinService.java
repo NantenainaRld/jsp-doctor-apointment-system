@@ -1,6 +1,7 @@
 package com.doctorapointment.service;
 
 
+import com.doctorapointment.dao.PatientDAO;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,5 +179,19 @@ public class MedecinService {
         }
         return new ServiceResult(false, "Une erreur est survenue lors de " +
                 "la modification des informations de medecin.");
+    }
+
+    // delete medecin
+    public ServiceResult deleteMed(String idMed) {
+        idMed = idMed == null ? "" : idMed.trim();
+
+        // Validation: medeci exist
+        if (medDAO.findById(idMed) == null)
+            return new ServiceResult(false,
+                    "Le medecin  avec l'ID <b>" + idMed + "</b> n'existe pas.");
+
+        boolean deleteMedResult = MedecinDAO.deleteMedecin(idMed);
+        return new ServiceResult(deleteMedResult, deleteMedResult ? null :
+                "Une erreur est survenue lors de la suppréssion du compte du medecin");
     }
 }

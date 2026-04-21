@@ -233,6 +233,6 @@ public class PatientService {
 
         boolean deleted = patDAO.deletePatient(patient.getIdPat());
         return new ServiceResult(deleted, deleted ? null : "Une erreur est survenue"
-                                                           + " lors de la suppréssion du compte de patient");
+                                                           + " lors de la suppréssion du compte du patient");
     }
 }
