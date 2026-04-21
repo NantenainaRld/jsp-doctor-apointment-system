@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.doctorapointment.model.Medecin;
 import com.doctorapointment.model.Patient;
+import com.doctorapointment.service.MedecinService;
 import com.doctorapointment.service.PatientService;
 
 /**
@@ -53,11 +55,21 @@ public class AdminServelet extends HttpServlet {
 //		response.getWriter().print(patSer.updatePatient(patient).getErrorMessage());
 		
 		// =============== delete patient ===========
-		PatientService patSer = new PatientService();
-		Patient patient = new Patient();
-		patient.setIdPat("p009");
+//		PatientService patSer = new PatientService();
+//		Patient patient = new Patient();
+//		patient.setIdPat("p009");
+//		
+//		response.getWriter().print(patSer.deletePatient(patient).getErrorMessage());
 		
-		response.getWriter().print(patSer.deletePatient(patient).getErrorMessage());
+		// ============ add medecin =============
+		MedecinService medSer = new MedecinService();
+		Medecin medecin = new Medecin();
+		medecin.setNomMed("roger");
+		medecin.setSpecialite("oreille");
+		medecin.setLieu("fianarantsoa");
+		medecin.setMdpMed("000000");
+		
+		response.getWriter().print(medSer.registerMedecin(medecin).getErrorMessage());
 	}
 
 	/**
