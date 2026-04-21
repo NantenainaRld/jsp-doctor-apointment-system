@@ -87,10 +87,10 @@ public class MedecinService {
 
         // Validation: login
         if (idMed.isEmpty() || mdpMed.isEmpty()) return new ServiceResult(false,
-                "L'identifiant et mot de passe réquis");
+                "L'identifiant et mot de passe requis");
         Medecin medecin = medDAO.findById(idMed);
         if(medecin == null || !BCrypt.checkpw(mdpMed, medecin.getMdpMed())){
-            return new ServiceResult(false, "Identifiant ou mot de passe réquis.");
+            return new ServiceResult(false, "Identifiant ou mot de passe requis.");
         }
 
         medecin.setMdpMed(null);
