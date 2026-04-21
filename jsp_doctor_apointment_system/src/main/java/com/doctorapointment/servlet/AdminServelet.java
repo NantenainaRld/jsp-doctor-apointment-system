@@ -62,14 +62,18 @@ public class AdminServelet extends HttpServlet {
 //		response.getWriter().print(patSer.deletePatient(patient).getErrorMessage());
 		
 		// ============ add medecin =============
+//		MedecinService medSer = new MedecinService();
+//		Medecin medecin = new Medecin();
+//		medecin.setNomMed("roger");
+//		medecin.setSpecialite("anestesiste");
+//		medecin.setLieu("fianarantsoa");
+//		medecin.setMdpMed("000000");
+//
+//		response.getWriter().print(medSer.registerMedecin(medecin).getErrorMessage());
+
+		// ============= login medecin =============
 		MedecinService medSer = new MedecinService();
-		Medecin medecin = new Medecin();
-		medecin.setNomMed("roger");
-		medecin.setSpecialite("oreille");
-		medecin.setLieu("fianarantsoa");
-		medecin.setMdpMed("000000");
-		
-		response.getWriter().print(medSer.registerMedecin(medecin).getErrorMessage());
+		response.getWriter().print(medSer.loginMedecin("m002","000000").getErrorMessage());
 	}
 
 	/**

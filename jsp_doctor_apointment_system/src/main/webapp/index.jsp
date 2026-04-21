@@ -1,4 +1,5 @@
 <html>
+<%@ page import="com.doctorapointment.services.PatientService" %>
 <body>
 	<h2>Hello World!</h2>
 	<%
@@ -6,5 +7,6 @@
     	
     	System.out.print(patSer.filterPatient("ss",null, null));
     %>
+<p></p>
 </body>
 </html>
