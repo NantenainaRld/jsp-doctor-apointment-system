@@ -116,7 +116,7 @@ public class MedecinDAO {
             stmt.setString(1, search);
             stmt.setString(2, search);
             stmt.setString(3, search);
-            if (!specialite.isEmpty()) stmt.setString(4,  specialite );
+            if (!specialite.isEmpty()) stmt.setString(4, specialite);
 
             ResultSet rs = stmt.executeQuery();
 
@@ -136,5 +136,31 @@ public class MedecinDAO {
         }
 
         return listMed;
+    }
+
+    // update medecin
+    public boolean updateMedecin(Medecin medecin) {
+        String query = "UPDATE medecin SET nom_med = ?, prenom_med = ?, specialite = ?, lieu = ?," +
+                "taux_horaire = ? ";
+        if (!medecin.getMdpMed().isEmpty()) query += ", mdp_med = ? ";
+        query += "WHERE id_med = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+        ) {
+            stmt.setString(1, medecin.getNomMed());
+            stmt.setString(2, medecin.getPrenomMed());
+            stmt.setString(3, medecin.getSpecialite());
+            stmt.setString(4, medecin.getLieu());
+            stmt.setDouble(5, medecin.getTauxHoraire());
+            int index = 6;
+            if (!medecin.getMdpMed().isEmpty()) stmt.setString(index++, medecin.getMdpMed());
+            stmt.setString(index, medecin.getIdMed());
+
+            return stmt.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            log.error("Error updating medecin", e);
+            return false;
+        }
     }
 }

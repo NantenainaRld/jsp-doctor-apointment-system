@@ -205,13 +205,13 @@ public class PatientService {
         if (!mdpPat.isEmpty()) {
             // mdp hash
             try {
-                String hashedPass = BCrypt.hashpw(mdpPat, BCrypt.gensalt());
-                patient.setMdpPat(hashedPass);
+                mdpPat = BCrypt.hashpw(mdpPat, BCrypt.gensalt());
             } catch (IllegalArgumentException e) {
                 log.error("Error during hashing mdp_pat", e);
                 return new ServiceResult(false, "Une erreur est survenue, veuillez réssayer.");
             }
         }
+        patient.setMdpPat(mdpPat);
 
         // Update patient
         boolean updatePatResult = patDAO.updatePatient(patient);

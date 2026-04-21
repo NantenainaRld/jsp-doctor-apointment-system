@@ -57,7 +57,7 @@ public class MedecinService {
 
         // Validation: taux_horaire
         if (medecin.getTauxHoraire() < 0) {
-            return new ServiceResult(false, "Le taux horaire ne doit pas être de valeur négative.");
+            return new ServiceResult(false, "Le taux horaire ne doit pas être négative.");
         }
 
         // mdp hash
@@ -106,5 +106,77 @@ public class MedecinService {
 
         return new ServiceResult(true,
                 null, MedecinDAO.filterMedecin(search, specialite, taux));
+    }
+
+    // update medecin
+    public ServiceResult updateMedecin(Medecin medecin) {
+        String nomMed = medecin.getNomMed() != null ? medecin.getNomMed().trim() : "";
+        String prenomMed = medecin.getPrenomMed() != null ? medecin.getPrenomMed().trim() : "";
+        String specialite = medecin.getSpecialite() != null ? medecin.getSpecialite().trim() : "";
+        String lieu = medecin.getLieu() != null ? medecin.getLieu().trim() : "";
+        String mdpMed = medecin.getMdpMed() != null ? medecin.getMdpMed() : "";
+
+        // Validation: nom_med
+        if (nomMed.isEmpty()) {
+            return new ServiceResult(false, "Veuillez remplir le nom.");
+        }
+        if (nomMed.matches(".*\\d.*")) {
+            return new ServiceResult(false, "Le nom ne doit pas contenir des chiffres.");
+        }
+        medecin.setNomMed(nomMed);
+
+        // Validation: prenom_med
+        if (!prenomMed.isEmpty() && prenomMed.matches(".*\\d.*")) {
+            return new ServiceResult(false, "Le prénom ne doit pas contenir des chiffres.");
+        }
+        medecin.setPrenomMed(prenomMed);
+
+        // Validation: specialite
+        if (specialite.isEmpty()) {
+            return new ServiceResult(false, "La spécialité est requise.");
+        }
+        medecin.setSpecialite(specialite);
+
+        // Validation: lieu
+        if (lieu.isEmpty()) {
+            return new ServiceResult(false, "Le lieu est requis.");
+        }
+        medecin.setLieu(lieu);
+
+        // Validation: mdp_med
+        if (!mdpMed.isEmpty() && mdpMed.length() < 6) {
+            return new ServiceResult(false, "Le mot de passe doit être au moins 6 caractères.");
+        }
+
+        // Validation: taux_horaire
+        if (medecin.getTauxHoraire() < 0) {
+            return new ServiceResult(false, "Le taux horaire ne doit pas être négatif.");
+        }
+
+        // mdp hash
+        if (!mdpMed.isEmpty())
+            try {
+                mdpMed = BCrypt.hashpw(mdpMed, BCrypt.gensalt());
+            } catch (IllegalArgumentException e) {
+                log.error("Error during hashing mdp_med", e);
+                return new ServiceResult(false, "Une erreur est survenue, veuillez réssayer.");
+            }
+        medecin.setMdpMed(mdpMed);
+
+        // set id_med
+        medecin.setIdMed(medecin.getIdMed());
+
+        // Vaidation: medecin exist
+        if (medDAO.findById(medecin.getIdMed()) == null)
+            return new ServiceResult(false,
+                    "Le medecin avec l'ID <b>" + medecin.getIdMed() + "</b> n'existe pas.");
+
+        // Update medecin
+        boolean updateMedResult = medDAO.updateMedecin(medecin);
+        if (updateMedResult) {
+            return new ServiceResult(true, null);
+        }
+        return new ServiceResult(false, "Une erreur est survenue lors de " +
+                "la modification des informations de medecin.");
     }
 }
