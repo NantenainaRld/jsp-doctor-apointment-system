@@ -78,7 +78,7 @@ public class MedecinService {
         if (addMedResult) {
             return new ServiceResult(true, null);
         }
-        return new ServiceResult(false, "Erreur lors de l'ajout de medecin");
+        return new ServiceResult(false, "Erreur lors de l'ajout de médecin");
     }
 
     // login medecin
@@ -170,7 +170,7 @@ public class MedecinService {
         // Vaidation: medecin exist
         if (medDAO.findById(medecin.getIdMed()) == null)
             return new ServiceResult(false,
-                    "Le medecin avec l'ID <b>" + medecin.getIdMed() + "</b> n'existe pas.");
+                    "Le médecin avec l'ID <b>" + medecin.getIdMed() + "</b> n'existe pas.");
 
         // Update medecin
         boolean updateMedResult = medDAO.updateMedecin(medecin);
@@ -178,7 +178,7 @@ public class MedecinService {
             return new ServiceResult(true, null);
         }
         return new ServiceResult(false, "Une erreur est survenue lors de " +
-                "la modification des informations de medecin.");
+                "la modification des informations de médecin.");
     }
 
     // delete medecin
@@ -188,10 +188,10 @@ public class MedecinService {
         // Validation: medeci exist
         if (medDAO.findById(idMed) == null)
             return new ServiceResult(false,
-                    "Le medecin  avec l'ID <b>" + idMed + "</b> n'existe pas.");
+                    "Le médecin  avec l'ID <b>" + idMed + "</b> n'existe pas.");
 
         boolean deleteMedResult = MedecinDAO.deleteMedecin(idMed);
         return new ServiceResult(deleteMedResult, deleteMedResult ? null :
-                "Une erreur est survenue lors de la suppréssion du compte du medecin");
+                "Une erreur est survenue lors de la suppréssion du compte du médecin");
     }
 }

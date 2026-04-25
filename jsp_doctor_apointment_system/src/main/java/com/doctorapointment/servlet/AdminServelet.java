@@ -1,5 +1,7 @@
 package com.doctorapointment.servlet;
 
+import com.doctorapointment.model.Rdv;
+import com.doctorapointment.service.RdvService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -7,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.doctorapointment.model.Medecin;
@@ -88,9 +91,19 @@ public class AdminServelet extends HttpServlet {
 //
 //        response.getWriter().print(medSer.updateMedecin(medecin).getErrorMessage());
 
-		// ========== delete medecin ===========
-		MedecinService medSer = new MedecinService();
-		response.getWriter().print(medSer.deleteMed("m002").getErrorMessage());
+//		// ========== delete medecin ===========
+//		MedecinService medSer = new MedecinService();
+//		response.getWriter().print(medSer.deleteMed("m002").getErrorMessage());
+
+		// ============== add rdv ==========
+		RdvService rdvSer = new RdvService();
+		Rdv rdv = new Rdv();
+		rdv.setRdvIdMed("m004");
+		rdv.setDateRdv(LocalDate.of(2026,5,2));
+		rdv.setHeureDebut(LocalTime.of(13,50));
+		rdv.setHeureFin(LocalTime.of(14,20));
+		rdv.setRdvIdPat("P003");
+		response.getWriter().print(rdvSer.addRdv(rdv).getErrorMessage());
 	}
 
 	/**

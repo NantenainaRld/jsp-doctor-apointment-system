@@ -1,13 +1,15 @@
 package com.doctorapointment.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class Rdv {
     private int idRdv;
-    private String rdvIdMed, rdvIdPat;
+    private String rdvIdMed, rdvIdPat, etatRdv;
     private LocalDate dateRdv;
     private LocalTime heureDebut, heureFin;
+    private LocalDateTime datePrisRdv;
 
     // getters
     public int getIdRdv() {return this.idRdv;}
@@ -30,6 +32,14 @@ public class Rdv {
 
     public LocalTime getHeureFin() {
         return heureFin;
+    }
+
+    public String getEtatRdv() {
+        return etatRdv;
+    }
+
+    public LocalDateTime getDatePrisRdv() {
+        return datePrisRdv;
     }
 
     // setters
@@ -57,5 +67,12 @@ public class Rdv {
     public void setHeureFin(LocalTime heureFin) {
         this.heureFin = heureFin;
     }
-    
+
+    public void setEtatRdv(String etatRdv) {
+        this.etatRdv = etatRdv;
+    }
+
+    public void setDatePrisRdv(LocalDateTime datePrisRdv) {
+        this.datePrisRdv = datePrisRdv;
+    }
 }
