@@ -300,7 +300,7 @@ public class RdvService {
             String contenu = "Bonjour, votre rendez-vous numéro <b style='color:blue'>" + rdv.getIdRdv() + "</b> a été annulé avec succès.";
             if (!emailSer.sendMail(patient.getEmailPat(), "Annulation rendez-vous", contenu)) {
                 return new ServiceResult(false,
-                        "Rendez-vous annulé avec succès mais il y a une erreur survenue lors l'envoie d'email");
+                        "Rendez-vous annulé avec succès mais il y a une erreur survenue lors de l'envoie d'email");
             }
 
             return new ServiceResult(true, null);
@@ -338,7 +338,7 @@ public class RdvService {
             String contenu = "Bonjour, votre rendez-vous numéro <b style='color:blue'>" + rdv.getIdRdv() + "</b> a été annulé par le Médecin.";
             if (!emailSer.sendMail(patient.getEmailPat(), "Annulation rendez-vous", contenu)) {
                 return new ServiceResult(false,
-                        "Rendez-vous annulé avec succès mais il y a une erreur survenue lors l'envoie d'email");
+                        "Rendez-vous annulé avec succès mais il y a une erreur survenue lors de l'envoie d'email");
             }
 
             return new ServiceResult(true, null);
@@ -374,7 +374,7 @@ public class RdvService {
             String contenu = "Bonjour, votre rendez-vous numéro <b style='color:blue'>" + rdv.getIdRdv() + "</b> a été annulé par l'administrateur.";
             if (!emailSer.sendMail(patient.getEmailPat(), "Annulation rendez-vous", contenu)) {
                 return new ServiceResult(false,
-                        "Rendez-vous annulé avec succès mais il y a une erreur survenue lors l'envoie d'email");
+                        "Rendez-vous annulé avec succès mais il y a une erreur survenue lors de l'envoie d'email");
             }
 
             return new ServiceResult(true, null);
@@ -387,6 +387,78 @@ public class RdvService {
         }
     }
 
-    // TODO: confirm rdv + email (verify if dépassé)
+    // confirm rdv medecin
+    public ServiceResult confirmRdvMedecin(Rdv rdv) {
+        try {
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getRdvIdMed().equals(rdv.getRdvIdMed()))
+                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être confirmé.");
+            }
+
+            // find email patient
+            PatientDAO patientDao = new PatientDAO();
+            Patient patient = patientDao.findById(rdvFind.getRdvIdPat());
+            if (patient == null) return new ServiceResult(false, "Patient introuvable, veuillez vérifier.");
+            // confirm rdv medecin
+            if (!rdvDAO.confirmRdv(rdv.getIdRdv())) return new ServiceResult(false,
+                    "Une erreur est survenue lors de la confirmation du rendez-vous.");
+
+            // send mail
+            EmailService emailSer = new EmailService();
+            String contenu = "Bonjour, votre rendez-vous numéro <b style='color:blue'>" + rdv.getIdRdv() + "</b> a été confirmé avec succès.";
+            if (!emailSer.sendMail(patient.getEmailPat(), "Confirmation rendez-vous", contenu)) {
+                return new ServiceResult(false,
+                        "Rendez-vous confirmé avec succès mais il y a une erreur survenue lors de l'envoie d'email");
+            }
+
+            return new ServiceResult(true, null);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réssayer");
+        } catch (Exception e) {
+            log.error("Error confirming rdv medecin", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // confirm rdv
+    public ServiceResult confirmRdv(Rdv rdv) {
+        try {
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être confirmé.");
+            }
+
+            // find email patient
+            PatientDAO patientDao = new PatientDAO();
+            Patient patient = patientDao.findById(rdvFind.getRdvIdPat());
+            if (patient == null) return new ServiceResult(false, "Patient introuvable, veuillez vérifier.");
+            // confirm rdv medecin
+            if (!rdvDAO.confirmRdv(rdv.getIdRdv())) return new ServiceResult(false,
+                    "Une erreur est survenue lors de la confirmation du rendez-vous.");
+
+            // send mail
+            EmailService emailSer = new EmailService();
+            String contenu = "Bonjour, votre rendez-vous numéro <b style='color:blue'>" + rdv.getIdRdv() + "</b> a été confirmé avec succès.";
+            if (!emailSer.sendMail(patient.getEmailPat(), "Confirmation rendez-vous", contenu)) {
+                return new ServiceResult(false,
+                        "Rendez-vous confirmé avec succès mais il y a une erreur survenue lors de l'envoie d'email");
+            }
+
+            return new ServiceResult(true, null);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réssayer");
+        } catch (Exception e) {
+            log.error("Error confirming rdv ", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
 
 }

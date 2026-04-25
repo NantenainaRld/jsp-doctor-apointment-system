@@ -172,4 +172,16 @@ public class RdvDAO {
             return stmt.executeUpdate() >= 0;
         }
     }
+
+    // confirm rdv
+    public boolean confirmRdv(int idRdv) throws SQLException {
+        String query = "UPDATE rdv SET etat_rdv = 'confirmé' WHERE id_rdv = ? AND etat_rdv = 'en attente'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idRdv);
+
+            return stmt.executeUpdate() >= 0;
+        }
+    }
 }
