@@ -1,12 +1,10 @@
 package com.doctorapointment.service;
 
-import com.doctorapointment.dao.DisponibiliteDAO;
-import com.doctorapointment.dao.MedecinDAO;
-import com.doctorapointment.dao.PatientDAO;
-import com.doctorapointment.dao.RdvDAO;
+import com.doctorapointment.dao.*;
 import com.doctorapointment.model.Disponibilite;
 import com.doctorapointment.model.Patient;
 import com.doctorapointment.model.Rdv;
+import com.doctorapointment.model.RdvPatMed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,19 +79,45 @@ public class RdvService {
             }
 
             // Verification: chevauchement
-            if (rdvDAO.existConflit(rdv)){
+            if (rdvDAO.existConflit(rdv)) {
                 return new ServiceResult(false, "Ce créneau est déjà occupé, veuillez modifier.");
             }
 
             // Add rdv
-            if(rdvDAO.addRdv(rdv)) return  new ServiceResult(true,null);
-            return  new ServiceResult(false,"Une erreur technique, veuillez réessayer.");
+            if (rdvDAO.addRdv(rdv)) return new ServiceResult(true, null);
+            return new ServiceResult(false, "Une erreur technique, veuillez réessayer.");
         } catch (SQLException e) {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Urreur technique, veuillez résssayer.");
         } catch (Exception e) {
             log.error("Error adding rdv", e);
-            return  new ServiceResult(false, "Une erreur innatendue s'est produite.");
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // filter patient rdv
+    public ServiceResult filterPatientRdv(String search, String rdvIdPat,
+                                          LocalDate dateRdvDebut, LocalDate dateRdvFin, String etatRdv,
+                                          LocalTime heureDebut, LocalTime heureFin) {
+        try {
+            // Validation
+            search = search == null ? "" : search.trim();
+            rdvIdPat = rdvIdPat == null ? "" : rdvIdPat.trim();
+            if (dateRdvDebut != null && dateRdvFin != null && dateRdvFin.isBefore(dateRdvDebut)) {
+                return new ServiceResult(false, "La date de fin ne doit pas être avant la date de début");
+            }
+            etatRdv = etatRdv == null || etatRdv.isEmpty() ? "all" : etatRdv.trim().toLowerCase();
+
+            // Filter: rdv patient
+            return new ServiceResult(true,
+                    null, RdvPatMedDAO.filterRdvPatient(search,
+                    rdvIdPat, dateRdvDebut, dateRdvFin, etatRdv, heureDebut, heureFin));
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer");
+        } catch (Exception e) {
+            log.error("Error filtering patient rdv", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite");
         }
     }
 }
