@@ -70,12 +70,12 @@ public class RdvDAO {
             stmt.setObject(1, rdv.getDateRdv());
             stmt.setString(2, rdv.getRdvIdMed());
             int index = 3;
-            if(heureDebut != null) stmt.setObject(index++, heureDebut);
-            if(heureFin !=null) stmt.setObject(index++, heureFin);
+            if (heureDebut != null) stmt.setObject(index++, heureDebut);
+            if (heureFin != null) stmt.setObject(index++, heureFin);
 
             ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 Rdv rdvv = new Rdv();
                 rdvv.setIdRdv(rs.getInt("id_rdv"));
                 rdvv.setHeureDebut(rs.getObject("heure_debut", LocalTime.class));
@@ -86,5 +86,66 @@ public class RdvDAO {
         }
 
         return listRdv;
+    }
+
+    // update rdv
+    public boolean updateRdv(Rdv rdv) throws SQLException {
+        String query = "UPDATE rdv SET heure_debut = ?, heure_fin = ? WHERE id_rdv = ? ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setObject(1, rdv.getHeureDebut());
+            stmt.setObject(2, rdv.getHeureFin());
+            stmt.setInt(3, rdv.getIdRdv());
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    // find rdv by id
+    public Rdv findById(int idRdv) throws SQLException {
+        String query = "SELECT id_rdv, rdv_id_med, rdv_id_pat," +
+                " date_rdv, etat_rdv, heure_debut, heure_fin, date_pris_rdv FROM rdv WHERE id_rdv = ? ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idRdv);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Rdv rdvFind = new Rdv();
+                rdvFind.setIdRdv(rs.getInt("id_rdv"));
+                rdvFind.setRdvIdMed(rs.getString("rdv_id_med"));
+                rdvFind.setRdvIdPat(rs.getString("rdv_id_pat"));
+                rdvFind.setDateRdv(rs.getObject("date_rdv", LocalDate.class));
+                rdvFind.setEtatRdv(rs.getString("etat_rdv"));
+                rdvFind.setHeureDebut(rs.getObject("heure_debut", LocalTime.class));
+                rdvFind.setHeureFin(rs.getObject("heure_fin", LocalTime.class));
+
+                return rdvFind;
+            }
+
+            return null;
+        }
+    }
+
+    // find conflit update rdv
+    public boolean existConflitUpdate(Rdv rdv) throws SQLException {
+        String query = "SELECT COUNT(*) FROM rdv WHERE date_rdv = ? AND" +
+                " heure_debut < ? AND heure_fin > ? AND rdv_id_med = ? AND etat_rdv != 'annulé' AND id_rdv != ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setObject(1, rdv.getDateRdv());
+            stmt.setObject(2, rdv.getHeureFin());
+            stmt.setObject(3, rdv.getHeureDebut());
+            stmt.setString(4, rdv.getRdvIdMed());
+            stmt.setInt(5, rdv.getIdRdv());
+
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        }
     }
 }

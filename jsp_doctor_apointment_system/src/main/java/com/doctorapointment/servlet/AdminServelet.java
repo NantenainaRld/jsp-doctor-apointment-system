@@ -4,11 +4,13 @@ import com.doctorapointment.model.Rdv;
 import com.doctorapointment.model.RdvPatMed;
 import com.doctorapointment.service.RdvService;
 import com.doctorapointment.service.ServiceResult;
+import com.mysql.cj.ServerVersion;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -24,23 +26,23 @@ import com.doctorapointment.service.PatientService;
  */
 @WebServlet("/admin")
 public class AdminServelet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public AdminServelet() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AdminServelet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// =========== list patient ==========
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+     * response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // =========== list patient ==========
 //		PatientService patSer = new PatientService();
 //		List<Patient> listPat =(List<Patient>) patSer.filterPatient("","2007-01-01", null).getData();
 //
@@ -48,7 +50,7 @@ public class AdminServelet extends HttpServlet {
 //			response.getWriter().print(pat.getEmailPat());
 //		}
 
-		// =============== update patient ============
+        // =============== update patient ============
 //		PatientService patSer = new PatientService();
 //		Patient patient = new Patient();
 //		patient.setIdPat("p004");
@@ -59,14 +61,14 @@ public class AdminServelet extends HttpServlet {
 //
 //		response.getWriter().print(patSer.updatePatient(patient).getErrorMessage());
 
-		// =============== delete patient ===========
+        // =============== delete patient ===========
 //		PatientService patSer = new PatientService();
 //		Patient patient = new Patient();
 //		patient.setIdPat("p009");
 //
 //		response.getWriter().print(patSer.deletePatient(patient).getErrorMessage());
 
-		// ============ add medecin =============
+        // ============ add medecin =============
 //		MedecinService medSer = new MedecinService();
 //		Medecin medecin = new Medecin();
 //		medecin.setNomMed("roger");
@@ -76,7 +78,7 @@ public class AdminServelet extends HttpServlet {
 //
 //		response.getWriter().print(medSer.registerMedecin(medecin).getErrorMessage());
 
-		// ============= login medecin =============
+        // ============= login medecin =============
 //		MedecinService medSer = new MedecinService();
 //		response.getWriter().print(medSer.loginMedecin("m002","000000").getErrorMessage());
 
@@ -97,7 +99,7 @@ public class AdminServelet extends HttpServlet {
 //		MedecinService medSer = new MedecinService();
 //		response.getWriter().print(medSer.deleteMed("m002").getErrorMessage());
 
-		// ============== add rdv ==========
+        // ============== add rdv ==========
 //		RdvService rdvSer = new RdvService();
 //		Rdv rdv = new Rdv();
 //		rdv.setRdvIdMed("m004");
@@ -107,7 +109,7 @@ public class AdminServelet extends HttpServlet {
 //		rdv.setRdvIdPat("P003");
 //		response.getWriter().print(rdvSer.addRdv(rdv).getErrorMessage());
 
-		// ============ filter patient rdv============
+        // ============ filter patient rdv============
 //		RdvService rdvSer = new RdvService();
 //		ServiceResult serRes = rdvSer.filterRdvPatient("","p003",
 //				null,null,"", null, null);
@@ -122,7 +124,7 @@ public class AdminServelet extends HttpServlet {
 //			response.getWriter().println(serRes.getErrorMessage());
 //		}
 
-		// ========== filter rdv medecin ================
+        // ========== filter rdv medecin ================
 //		RdvService rdvSer = new RdvService();
 //		ServiceResult serRes = rdvSer.filterRdvMedecin("","m004",
 //				null,null,"", null, null);
@@ -137,32 +139,45 @@ public class AdminServelet extends HttpServlet {
 //			response.getWriter().println(serRes.getErrorMessage());
 //		}
 
-		// =========== filter rdv dispo ===============
-		Rdv rdv = new Rdv();
-		rdv.setRdvIdMed("m004");
-		rdv.setDateRdv(LocalDate.of(2026,05,02));
-		RdvService rdvSer = new RdvService();
-		ServiceResult serRes = rdvSer.filterRdvDispo(rdv, LocalTime.of(12, 50), LocalTime.of(15,20));
+        // =========== filter rdv dispo ===============
+//		Rdv rdv = new Rdv();
+//		rdv.setRdvIdMed("m004");
+//		rdv.setDateRdv(LocalDate.of(2026,05,02));
+//		RdvService rdvSer = new RdvService();
+//		ServiceResult serRes = rdvSer.filterRdvDispo(rdv, LocalTime.of(12, 50), LocalTime.of(15,20));
+//
+//		if(serRes.isSuccess()){
+//			for (Rdv r: (List<Rdv>) serRes.getData()){
+//				response.getWriter().println(r.getHeureDebut());
+//			}
+//			response.getWriter().println("end");
+//		}
+//		else{
+//			response.getWriter().println(serRes.getErrorMessage());
+//		}
 
-		if(serRes.isSuccess()){
-			for (Rdv r: (List<Rdv>) serRes.getData()){
-				response.getWriter().println(r.getHeureDebut());
-			}
-			response.getWriter().println("end");
-		}
-		else{
-			response.getWriter().println(serRes.getErrorMessage());
-		}
-	}
+        // =========== update rdv ============
+        Rdv rdv = new Rdv();
+        rdv.setIdRdv(3);
+        rdv.setHeureDebut(LocalTime.of(14, 12));
+        rdv.setHeureFin(LocalTime.of(21, 52));
+        RdvService rdvSer = new RdvService();
+        ServiceResult serRes = rdvSer.updateRdv(rdv, "p003");
+        if (serRes.isSuccess()) {
+            response.getWriter().println("Update successfully.");
+        } else {
+            response.getWriter().println(serRes.getErrorMessage());
+        }
+    }
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
-	}
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     * response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // TODO Auto-generated method stub
+        doGet(request, response);
+    }
 
 }

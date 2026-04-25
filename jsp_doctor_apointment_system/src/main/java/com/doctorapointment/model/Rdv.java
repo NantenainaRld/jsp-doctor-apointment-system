@@ -53,11 +53,11 @@ public class Rdv {
     }
 
     public void setRdvIdMed(String rdvIdMed) {
-        this.rdvIdMed = rdvIdMed;
+        this.rdvIdMed = rdvIdMed.toUpperCase();
     }
 
     public void setRdvIdPat(String rdvIdPat) {
-        this.rdvIdPat = rdvIdPat;
+        this.rdvIdPat = rdvIdPat.toUpperCase();
     }
 
     public void setHeureDebut(LocalTime heureDebut) {

@@ -164,4 +164,48 @@ public class RdvService {
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }
+
+    // update rdv
+    public ServiceResult updateRdv(Rdv rdv, String idPat) {
+        try {
+            // Validation: heure_rdv
+            if (rdv.getHeureDebut() == null) return new ServiceResult(false, "L'heure de début est requise.");
+            if (rdv.getHeureFin() == null) return new ServiceResult(false, "L'heure de fin est requise.");
+            if (rdv.getHeureDebut().isAfter(rdv.getHeureFin())) {
+                return new ServiceResult(false, "L'heure de fin ne doit pas être avant l'heure de début.");
+            }
+
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getRdvIdPat().equals(idPat.toUpperCase()))
+                return new ServiceResult(false, "Cet rendez-vous n'appartient pas à ce patient.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être modifié.");
+            }
+            if(LocalDateTime.of(rdvFind.getDateRdv(), rdv.getHeureDebut()).isBefore(LocalDateTime.now())){
+                return  new ServiceResult(false,"L'heure de début est déjà dépassée.");
+            }
+            // conflit
+            Rdv rdvConflit = new Rdv();
+            rdvConflit.setIdRdv(rdv.getIdRdv());
+            rdvConflit.setDateRdv(rdvFind.getDateRdv());
+            rdvConflit.setHeureDebut(rdv.getHeureDebut());
+            rdvConflit.setHeureFin(rdv.getHeureFin());
+            rdvConflit.setRdvIdMed(rdvFind.getRdvIdMed());
+            if(rdvDAO.existConflitUpdate(rdvConflit)){
+                return  new ServiceResult(false, "Ce créneau est déjà occupé, veuillez modifier.");
+            }
+
+            // update rdv
+            if(rdvDAO.updateRdv(rdvConflit)) return  new ServiceResult(true,null);
+            return  new ServiceResult(false, "Une erreur est survenue lors de la modification du rendez-vous.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error updating rdv", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
 }
