@@ -120,6 +120,7 @@ public class RdvService {
             return new ServiceResult(false, "Une erreur innatendue s'est produite");
         }
     }
+
     // filter rdv medecin
     public ServiceResult filterRdvMedecin(String search, String rdvIdMed,
                                           LocalDate dateRdvDebut, LocalDate dateRdvFin, String etatRdv,
@@ -143,6 +144,24 @@ public class RdvService {
         } catch (Exception e) {
             log.error("Error filtering rdv medecin", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite");
+        }
+    }
+
+    // filter rdv dispo
+    public ServiceResult filterRdvDispo(Rdv rdv, LocalTime heureDebut, LocalTime heureFin) {
+        try {
+            if (heureDebut != null && heureFin != null && heureFin.isBefore(heureDebut)) {
+                return new ServiceResult(false, "L'heure de fin ne doit pas être avant l'heure de début");
+            }
+
+            return new ServiceResult(true, null, rdvDAO.filterRdvDispo(rdv, heureDebut, heureFin
+            ));
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réesayer.");
+        } catch (Exception e) {
+            log.error("Error filtering rdv for disponibilite", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }
 }

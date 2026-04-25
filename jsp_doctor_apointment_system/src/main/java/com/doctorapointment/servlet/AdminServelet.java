@@ -123,14 +123,31 @@ public class AdminServelet extends HttpServlet {
 //		}
 
 		// ========== filter rdv medecin ================
-		RdvService rdvSer = new RdvService();
-		ServiceResult serRes = rdvSer.filterRdvMedecin("","m004",
-				null,null,"", null, null);
-		if(serRes.isSuccess()){
-			for(RdvPatMed rdv : (List<RdvPatMed>) serRes.getData()){
-				response.getWriter().print(rdv.getEtatRdv() + "<br>");
-			}
+//		RdvService rdvSer = new RdvService();
+//		ServiceResult serRes = rdvSer.filterRdvMedecin("","m004",
+//				null,null,"", null, null);
+//		if(serRes.isSuccess()){
+//			for(RdvPatMed rdv : (List<RdvPatMed>) serRes.getData()){
+//				response.getWriter().print(rdv.getEtatRdv() + "<br>");
+//			}
+//
+//			response.getWriter().println("end");
+//		}
+//		else{
+//			response.getWriter().println(serRes.getErrorMessage());
+//		}
 
+		// =========== filter rdv dispo ===============
+		Rdv rdv = new Rdv();
+		rdv.setRdvIdMed("m004");
+		rdv.setDateRdv(LocalDate.of(2026,05,02));
+		RdvService rdvSer = new RdvService();
+		ServiceResult serRes = rdvSer.filterRdvDispo(rdv, LocalTime.of(12, 50), LocalTime.of(15,20));
+
+		if(serRes.isSuccess()){
+			for (Rdv r: (List<Rdv>) serRes.getData()){
+				response.getWriter().println(r.getHeureDebut());
+			}
 			response.getWriter().println("end");
 		}
 		else{
