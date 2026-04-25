@@ -196,14 +196,27 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // ============== delete rdv =========
-        Rdv rdv = new Rdv();
-        rdv.setIdRdv(3);
-        RdvService rdvSer = new RdvService();
-        ServiceResult serRes = rdvSer.deleteRdv(rdv);
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(3);
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.deleteRdv(rdv);
+//
+//        if (serRes.isSuccess()) {
+//            response.getWriter().println("Deleted successfully");
+//        } else {
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
 
-        if (serRes.isSuccess()) {
-            response.getWriter().println("Deleted successfully");
-        } else {
+        // ============ cancel rdv patient ===========
+        Rdv rdv = new Rdv();
+        rdv.setIdRdv(4);
+        rdv.setRdvIdPat("p003");
+        RdvService rdvSer = new RdvService();
+        ServiceResult serRes = rdvSer.cancelRdvPatient(rdv);
+        if(serRes.isSuccess()){
+            response.getWriter().println("Canceled successfully.");
+        }
+        else{
             response.getWriter().println(serRes.getErrorMessage());
         }
     }

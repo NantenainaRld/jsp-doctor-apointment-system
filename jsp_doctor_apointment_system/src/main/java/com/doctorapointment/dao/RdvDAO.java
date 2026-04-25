@@ -98,7 +98,7 @@ public class RdvDAO {
             stmt.setObject(2, rdv.getHeureFin());
             stmt.setInt(3, rdv.getIdRdv());
 
-            return stmt.executeUpdate() > 0;
+            return stmt.executeUpdate() >= 0;
         }
     }
 
@@ -158,6 +158,18 @@ public class RdvDAO {
             stmt.setInt(1, idRdv);
 
             return stmt.executeUpdate() > 0;
+        }
+    }
+
+    // cancel rdv
+    public boolean cancelRdv(int idRdv) throws SQLException {
+        String query = "UPDATE rdv SET etat_rdv = 'annulé' WHERE id_rdv = ? AND etat_rdv = 'en attente'";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idRdv);
+
+            return stmt.executeUpdate() >= 0;
         }
     }
 }

@@ -275,7 +275,41 @@ public class RdvService {
         }
     }
 
-    // TODO: cancel rdv + email (verify if dépassé)
+    // cancel rdv patient
+    public ServiceResult cancelRdvPatient(Rdv rdv) {
+        try {
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getRdvIdPat().equals(rdv.getRdvIdPat()))
+                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+
+            // find email patient
+            PatientDAO patientDao = new PatientDAO();
+            Patient patient = patientDao.findById(rdv.getRdvIdPat());
+            if (patient == null) return new ServiceResult(false, "Compte introuvable, veuillez réconnecter.");
+21
+            // cancel rdv patient
+            if (!rdvDAO.cancelRdv(rdv.getIdRdv())) return new ServiceResult(false,21
+                    "Une erreur est survenue lors de l'annulation du rendez-vous.");
+
+            // send mail
+            EmailService emailSer = new EmailService();
+            String contenu = "Bonjour, votre rendez-vous numéro <b style='color:blue'>" + rdv.getIdRdv() + "</b> a été annulé avec succès.";
+            if (!emailSer.sendMail(patient.getEmailPat(), "Annulation rendez-vous", contenu)) {
+                return new ServiceResult(false,
+                        "Rendez-vous annulé avec succès mais il y a une erreur survenue pour l'envoie d'email");
+            }
+
+            return new ServiceResult(true, null);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réssayer");
+        } catch (Exception e) {
+            log.error("Error canceling rdv patient", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
 
     // TODO: confirm rdv + email (verify if dépassé)
 
