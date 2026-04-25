@@ -246,12 +246,25 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // =========== confirm rdv medecin =============
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(4);
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.confirmRdv(rdv);
+//        if(serRes.isSuccess()){
+//            response.getWriter().println("Confirmed successfully.");
+//        }
+//        else{
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
+
+        // ============ notify cancel rdv medecin =======
         Rdv rdv = new Rdv();
         rdv.setIdRdv(4);
+        rdv.setRdvIdMed("m004");
         RdvService rdvSer = new RdvService();
-        ServiceResult serRes = rdvSer.confirmRdv(rdv);
+        ServiceResult serRes = rdvSer.notifyCancelRdvMedecin(rdv);
         if(serRes.isSuccess()){
-            response.getWriter().println("Confirmed successfully.");
+            response.getWriter().println("notify successfully.");
         }
         else{
             response.getWriter().println(serRes.getErrorMessage());
