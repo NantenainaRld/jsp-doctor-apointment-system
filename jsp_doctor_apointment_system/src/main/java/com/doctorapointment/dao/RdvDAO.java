@@ -148,4 +148,16 @@ public class RdvDAO {
             return rs.next() && rs.getInt(1) > 0;
         }
     }
+
+    // delete rdv
+    public boolean deleteRdv(int idRdv) throws SQLException {
+        String query = "DELETE FROM rdv WHERE id_rdv = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idRdv);
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
 }

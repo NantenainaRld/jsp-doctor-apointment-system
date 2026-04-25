@@ -157,14 +157,52 @@ public class AdminServelet extends HttpServlet {
 //		}
 
         // =========== update rdv ============
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(3);
+//        rdv.setHeureDebut(LocalTime.of(14, 12));
+//        rdv.setHeureFin(LocalTime.of(21, 52));
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.updateRdv(rdv, "p003");
+//        if (serRes.isSuccess()) {
+//            response.getWriter().println("Update successfully.");
+//        } else {
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
+
+        // =============== delete rdv patient ==========
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(2);
+//        rdv.setRdvIdPat("p003");
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.deleteRdvPatient(rdv);
+//
+//        if (serRes.isSuccess()) {
+//            response.getWriter().println("Deleted successfully");
+//        } else {
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
+
+        // ========== delete rdv medecin ==========
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(1);
+//        rdv.setRdvIdMed("m004");
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.deleteRdvMedecin(rdv);
+//
+//        if (serRes.isSuccess()) {
+//            response.getWriter().println("Deleted successfully");
+//        } else {
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
+
+        // ============== delete rdv =========
         Rdv rdv = new Rdv();
         rdv.setIdRdv(3);
-        rdv.setHeureDebut(LocalTime.of(14, 12));
-        rdv.setHeureFin(LocalTime.of(21, 52));
         RdvService rdvSer = new RdvService();
-        ServiceResult serRes = rdvSer.updateRdv(rdv, "p003");
+        ServiceResult serRes = rdvSer.deleteRdv(rdv);
+
         if (serRes.isSuccess()) {
-            response.getWriter().println("Update successfully.");
+            response.getWriter().println("Deleted successfully");
         } else {
             response.getWriter().println(serRes.getErrorMessage());
         }

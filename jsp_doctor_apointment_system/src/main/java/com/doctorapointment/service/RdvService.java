@@ -183,8 +183,8 @@ public class RdvService {
             if (!rdvFind.getEtatRdv().equals("en attente")) {
                 return new ServiceResult(false, "Seul un rendez-vous en attente peut être modifié.");
             }
-            if(LocalDateTime.of(rdvFind.getDateRdv(), rdv.getHeureDebut()).isBefore(LocalDateTime.now())){
-                return  new ServiceResult(false,"L'heure de début est déjà dépassée.");
+            if (LocalDateTime.of(rdvFind.getDateRdv(), rdv.getHeureDebut()).isBefore(LocalDateTime.now())) {
+                return new ServiceResult(false, "L'heure de début est déjà dépassée.");
             }
             // conflit
             Rdv rdvConflit = new Rdv();
@@ -193,13 +193,13 @@ public class RdvService {
             rdvConflit.setHeureDebut(rdv.getHeureDebut());
             rdvConflit.setHeureFin(rdv.getHeureFin());
             rdvConflit.setRdvIdMed(rdvFind.getRdvIdMed());
-            if(rdvDAO.existConflitUpdate(rdvConflit)){
-                return  new ServiceResult(false, "Ce créneau est déjà occupé, veuillez modifier.");
+            if (rdvDAO.existConflitUpdate(rdvConflit)) {
+                return new ServiceResult(false, "Ce créneau est déjà occupé, veuillez modifier.");
             }
 
             // update rdv
-            if(rdvDAO.updateRdv(rdvConflit)) return  new ServiceResult(true,null);
-            return  new ServiceResult(false, "Une erreur est survenue lors de la modification du rendez-vous.");
+            if (rdvDAO.updateRdv(rdvConflit)) return new ServiceResult(true, null);
+            return new ServiceResult(false, "Une erreur est survenue lors de la modification du rendez-vous.");
         } catch (SQLException e) {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
@@ -208,4 +208,75 @@ public class RdvService {
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }
+
+    // delete rdv patient
+    public ServiceResult deleteRdvPatient(Rdv rdv) {
+        try {
+
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getRdvIdPat().equals(rdv.getRdvIdPat())) {
+                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+            }
+
+            // delete rdv
+            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting rdv patient", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // delete rdv medecin
+    public ServiceResult deleteRdvMedecin(Rdv rdv) {
+        try {
+
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getRdvIdMed().equals(rdv.getRdvIdMed())) {
+                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+            }
+
+            // delete rdv
+            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting rdv medecin", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // delete rdv
+    public ServiceResult deleteRdv(Rdv rdv) {
+        try {
+
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+
+            // delete rdv
+            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting rdv", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // TODO: cancel rdv + email (verify if dépassé)
+
+    // TODO: confirm rdv + email (verify if dépassé)
+
 }
