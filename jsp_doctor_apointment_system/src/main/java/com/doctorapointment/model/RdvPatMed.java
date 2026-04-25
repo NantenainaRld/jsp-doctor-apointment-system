@@ -6,8 +6,8 @@ import java.time.LocalTime;
 
 public class RdvPatMed {
     private int idRdv;
-    private String rdvNomMed, rdvNomPat, etatRdv, specialite;
-    private LocalDate dateRdv;
+    private String rdvNomMed, rdvNomPat, etatRdv, specialite, emailPat;
+    private LocalDate dateRdv, dateNais;
     private LocalTime heureDebut, heureFin;
     private LocalDateTime datePrisRdv;
 
@@ -48,6 +48,14 @@ public class RdvPatMed {
     public String getSpecialite() {
         return specialite;
     }
+
+    public LocalDate getDateNais() {
+        return dateNais;
+    }
+
+    public String getEmailPat() {
+        return emailPat;
+    }
     // setters
 
     public void setIdRdv(int idRdv) {
@@ -84,5 +92,13 @@ public class RdvPatMed {
 
     public void setSpecialite(String specialite) {
         this.specialite = specialite;
+    }
+
+    public void setDateNais(LocalDate dateNais) {
+        this.dateNais = dateNais;
+    }
+
+    public void setEmailPat(String emailPat) {
+        this.emailPat = emailPat;
     }
 }

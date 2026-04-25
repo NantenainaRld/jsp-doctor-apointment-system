@@ -95,8 +95,8 @@ public class RdvService {
         }
     }
 
-    // filter patient rdv
-    public ServiceResult filterPatientRdv(String search, String rdvIdPat,
+    // filter rdv patient
+    public ServiceResult filterRdvPatient(String search, String rdvIdPat,
                                           LocalDate dateRdvDebut, LocalDate dateRdvFin, String etatRdv,
                                           LocalTime heureDebut, LocalTime heureFin) {
         try {
@@ -116,7 +116,32 @@ public class RdvService {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Erreur technique, veuillez réessayer");
         } catch (Exception e) {
-            log.error("Error filtering patient rdv", e);
+            log.error("Error filtering rdv patient", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite");
+        }
+    }
+    // filter rdv medecin
+    public ServiceResult filterRdvMedecin(String search, String rdvIdMed,
+                                          LocalDate dateRdvDebut, LocalDate dateRdvFin, String etatRdv,
+                                          LocalTime heureDebut, LocalTime heureFin) {
+        try {
+            // Validation
+            search = search == null ? "" : search.trim();
+            rdvIdMed = rdvIdMed == null ? "" : rdvIdMed.trim();
+            if (dateRdvDebut != null && dateRdvFin != null && dateRdvFin.isBefore(dateRdvDebut)) {
+                return new ServiceResult(false, "La date de fin ne doit pas être avant la date de début");
+            }
+            etatRdv = etatRdv == null || etatRdv.isEmpty() ? "all" : etatRdv.trim().toLowerCase();
+
+            // Filter: rdv medecin
+            return new ServiceResult(true,
+                    null, RdvPatMedDAO.filterRdvMedecin(search,
+                    rdvIdMed, dateRdvDebut, dateRdvFin, etatRdv, heureDebut, heureFin));
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer");
+        } catch (Exception e) {
+            log.error("Error filtering rdv medecin", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite");
         }
     }

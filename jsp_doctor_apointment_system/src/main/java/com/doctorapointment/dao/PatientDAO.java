@@ -110,6 +110,7 @@ public class PatientDAO {
 	}
 
 	// Filter patient
+	// TODO: add filter by date_nais
 	public static List<Patient> filterPatient(String search, LocalDate dateNaisDebut, LocalDate dateNaisFin) {
 		String query = "SELECT id_pat, nom_pat, prenom_pat, date_nais, email_pat FROM patient WHERE "
 				+ "(id_pat LIKE ? OR CONCAT(nom_pat, ' ', prenom_pat) LIKE ? OR email_pat LIKE ?) ";

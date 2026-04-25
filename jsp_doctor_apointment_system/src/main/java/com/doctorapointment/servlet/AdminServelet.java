@@ -108,12 +108,27 @@ public class AdminServelet extends HttpServlet {
 //		response.getWriter().print(rdvSer.addRdv(rdv).getErrorMessage());
 
 		// ============ filter patient rdv============
+//		RdvService rdvSer = new RdvService();
+//		ServiceResult serRes = rdvSer.filterRdvPatient("","p003",
+//				null,null,"", null, null);
+//		if(serRes.isSuccess()){
+//			for(RdvPatMed rdv : (List<RdvPatMed>) serRes.getData()){
+//				response.getWriter().print(rdv.getRdvNomMed() + "<br>");
+//			}
+//
+//			response.getWriter().println("end");
+//		}
+//		else{
+//			response.getWriter().println(serRes.getErrorMessage());
+//		}
+
+		// ========== filter rdv medecin ================
 		RdvService rdvSer = new RdvService();
-		ServiceResult serRes = rdvSer.filterPatientRdv("","p003",
+		ServiceResult serRes = rdvSer.filterRdvMedecin("","m004",
 				null,null,"", null, null);
 		if(serRes.isSuccess()){
 			for(RdvPatMed rdv : (List<RdvPatMed>) serRes.getData()){
-				response.getWriter().print(rdv.getRdvNomMed() + "<br>");
+				response.getWriter().print(rdv.getEtatRdv() + "<br>");
 			}
 
 			response.getWriter().println("end");
