@@ -221,11 +221,23 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // =========== cancel rdv medecin =========
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(4);
+//        rdv.setRdvIdMed("m004");
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.cancelRdvMedecin(rdv);
+//        if(serRes.isSuccess()){
+//            response.getWriter().println("Canceled successfully.");
+//        }
+//        else{
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
+
+        // ============= cancel rdv ================
         Rdv rdv = new Rdv();
         rdv.setIdRdv(4);
-        rdv.setRdvIdMed("m004");
         RdvService rdvSer = new RdvService();
-        ServiceResult serRes = rdvSer.cancelRdvMedecin(rdv);
+        ServiceResult serRes = rdvSer.cancelRdv(rdv);
         if(serRes.isSuccess()){
             response.getWriter().println("Canceled successfully.");
         }
