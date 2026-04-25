@@ -283,6 +283,9 @@ public class RdvService {
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
             if (!rdvFind.getRdvIdPat().equals(rdv.getRdvIdPat()))
                 return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être annulé.");
+            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
@@ -318,6 +321,9 @@ public class RdvService {
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
             if (!rdvFind.getRdvIdMed().equals(rdv.getRdvIdMed()))
                 return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être annulé.");
+            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
@@ -351,6 +357,9 @@ public class RdvService {
             // Validation: rdv
             Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être annulé.");
+            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
