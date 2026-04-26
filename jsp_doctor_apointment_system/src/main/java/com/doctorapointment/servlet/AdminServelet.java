@@ -1,9 +1,7 @@
 package com.doctorapointment.servlet;
 
-import com.doctorapointment.model.Rdv;
-import com.doctorapointment.model.RdvPatMed;
-import com.doctorapointment.service.RdvService;
-import com.doctorapointment.service.ServiceResult;
+import com.doctorapointment.model.*;
+import com.doctorapointment.service.*;
 import com.mysql.cj.ServerVersion;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,11 +13,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-
-import com.doctorapointment.model.Medecin;
-import com.doctorapointment.model.Patient;
-import com.doctorapointment.service.MedecinService;
-import com.doctorapointment.service.PatientService;
 
 /**
  * Servlet implementation class AdminServelet
@@ -258,13 +251,28 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // ============ notify cancel rdv medecin =======
-        Rdv rdv = new Rdv();
-        rdv.setIdRdv(4);
-        rdv.setRdvIdMed("m004");
-        RdvService rdvSer = new RdvService();
-        ServiceResult serRes = rdvSer.notifyCancelRdvMedecin(rdv);
+//        Rdv rdv = new Rdv();
+//        rdv.setIdRdv(4);
+//        rdv.setRdvIdMed("m004");
+//        RdvService rdvSer = new RdvService();
+//        ServiceResult serRes = rdvSer.notifyCancelRdvMedecin(rdv);
+//        if(serRes.isSuccess()){
+//            response.getWriter().println("notify successfully.");
+//        }
+//        else{
+//            response.getWriter().println(serRes.getErrorMessage());
+
+
+        // =========== add disponibilite ============
+        Disponibilite disponibilite = new Disponibilite();
+        disponibilite.setDispoIdMed("m004");
+        disponibilite.setDateDispo(LocalDate.of(2026,5,2));
+        disponibilite.setDebutDispo(LocalTime.of(11,12));
+        disponibilite.setFinDispo(LocalTime.of(12,14));
+        DisponibiliteService dipoSer = new DisponibiliteService();
+        ServiceResult serRes =dipoSer.addDispo(disponibilite);
         if(serRes.isSuccess()){
-            response.getWriter().println("notify successfully.");
+            response.getWriter().println("added");
         }
         else{
             response.getWriter().println(serRes.getErrorMessage());

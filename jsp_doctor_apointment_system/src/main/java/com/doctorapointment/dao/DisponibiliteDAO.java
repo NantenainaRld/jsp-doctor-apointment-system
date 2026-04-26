@@ -31,6 +31,36 @@ public class DisponibiliteDAO {
             log.error("Error finding dispo by date and idmed and creneau", e);
             return false;
         }
+    }
 
+    // add disponibilte
+    public boolean addDisponibilte(Disponibilite disponibilite) throws SQLException {
+        String query = "INSERT INTO disponibilite (dispo_id_med, date_dispo, debut_dispo, fin_dispo) " +
+                "VALUES (?, ?, ?, ?) ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, disponibilite.getDispoIdMed());
+            stmt.setObject(2, disponibilite.getDateDispo());
+            stmt.setObject(3, disponibilite.getDebutDispo());
+            stmt.setObject(4, disponibilite.getFinDispo());
+
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    // chevauchement
+    public boolean chevaucheExistant(Disponibilite dispo) throws SQLException {
+        String query = "SELECT COUNT(*) FROM disponibilite WHERE date_dispo = ? " +
+                "AND dispo_id_med = ? AND debut_dispo < ? AND fin_dispo > ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setObject(1, dispo.getDateDispo());
+            stmt.setString(2, dispo.getDispoIdMed());
+            stmt.setObject(3, dispo.getFinDispo());
+            stmt.setObject(4, dispo.getDebutDispo());
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        }
     }
 }
