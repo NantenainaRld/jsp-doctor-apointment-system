@@ -264,18 +264,32 @@ public class AdminServelet extends HttpServlet {
 
 
         // =========== add disponibilite ============
-        Disponibilite disponibilite = new Disponibilite();
-        disponibilite.setDispoIdMed("m004");
-        disponibilite.setDateDispo(LocalDate.of(2026,5,2));
-        disponibilite.setDebutDispo(LocalTime.of(11,12));
-        disponibilite.setFinDispo(LocalTime.of(12,14));
-        DisponibiliteService dipoSer = new DisponibiliteService();
-        ServiceResult serRes =dipoSer.addDispo(disponibilite);
+//        Disponibilite disponibilite = new Disponibilite();
+//        disponibilite.setDispoIdMed("m004");
+//        disponibilite.setDateDispo(LocalDate.of(2026,5,2));
+//        disponibilite.setDebutDispo(LocalTime.of(11,12));
+//        disponibilite.setFinDispo(LocalTime.of(12,14));
+//        DisponibiliteService dipoSer = new DisponibiliteService();
+//        ServiceResult serRes =dipoSer.addDispo(disponibilite);
+//        if(serRes.isSuccess()){
+//            response.getWriter().println("added");
+//        }
+//        else{
+//            response.getWriter().println(serRes.getErrorMessage());
+//        }
+
+        // ======== filter disponibilite =======
+        DisponibiliteService dispoSer = new DisponibiliteService();
+        ServiceResult serRes = dispoSer.filterDispo("m004",
+                LocalDate.of(2026, 5, 2), null, null, null);
         if(serRes.isSuccess()){
-            response.getWriter().println("added");
+            for(Disponibilite dispo : (List<Disponibilite>) serRes.getData()){
+                response.getWriter().print(dispo.getDateDispo());
+            }
+            response.getWriter().print("end");
         }
         else{
-            response.getWriter().println(serRes.getErrorMessage());
+            response.getWriter().print(serRes.getErrorMessage());
         }
     }
 

@@ -28,7 +28,7 @@ public class RdvPatMedDAO {
                 "med.specialite, rdv.date_rdv, rdv.etat_rdv, " +
                 "rdv.heure_debut, rdv.heure_fin, rdv.date_pris_rdv FROM rdv rdv JOIN medecin med ON " +
                 "med.id_med = rdv.rdv_id_med JOIN patient pat ON pat.id_pat = rdv.rdv_id_pat WHERE " +
-                "(rdv.id_rdv LIKE ? OR CONCAT(med.nom_med, ' ', med.prenom_med) LIKE ? ) AND pat.id_pat = ? ";
+                "CONCAT(med.nom_med, ' ', med.prenom_med) LIKE ? AND pat.id_pat = ? ";
 
         // Filter: etat_rdv
         if (!etatRdv.equals("all")) {
@@ -57,19 +57,30 @@ public class RdvPatMedDAO {
             query += "AND rdv.heure_fin <= ? ";
         }
 
-        query += " ORDER BY rdv.date_rdv, rdv.heure_debut DESC ";
+        query += " ORDER BY rdv.date_rdv, rdv.heure_debut DESC, rdv.id_rdv ";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             search = "%" + search + "%";
             stmt.setString(1, search);
-            stmt.setString(2, search);
-            stmt.setString(3, rdvIdPat);
-            int index = 4;
+            stmt.setString(2, rdvIdPat);
+            int index = 3;
             if (!etatRdv.equals("all") && !etatRdv.equals("dépassé")) stmt.setString(index++, etatRdv);
-            if (dateRdvDebut != null) stmt.setObject(index++, dateRdvDebut);
-            if (dateRdvFin != null) stmt.setObject(index++, dateRdvFin);
-            if (heureDebut != null) stmt.setObject(index++, heureDebut);
-            if (heureFin != null) stmt.setObject(index++, heureFin);
+            if (dateRdvDebut != null && dateRdvFin != null) {
+                stmt.setObject(index++, dateRdvDebut);
+                stmt.setObject(index++, dateRdvFin);
+            } else if (dateRdvDebut != null) {
+                stmt.setObject(index++, dateRdvDebut);
+            } else if (dateRdvFin != null) {
+                stmt.setObject(index++, dateRdvFin);
+            }
+            if (heureDebut != null && heureFin != null) {
+                stmt.setObject(index++, heureDebut);
+                stmt.setObject(index++, heureFin);
+            } else if (heureDebut != null) {
+                stmt.setObject(index++, heureDebut);
+            } else if (heureFin != null) {
+                stmt.setObject(index++, heureFin);
+            }
 
             ResultSet rs = stmt.executeQuery();
 
@@ -106,7 +117,7 @@ public class RdvPatMedDAO {
                 "pat.date_nais, pat.email_pat, rdv.date_rdv, rdv.etat_rdv, " +
                 "rdv.heure_debut, rdv.heure_fin, rdv.date_pris_rdv FROM rdv rdv JOIN patient pat ON " +
                 "pat.id_pat = rdv.rdv_id_pat JOIN medecin med ON med.id_med = rdv.rdv_id_med WHERE " +
-                "(rdv.id_rdv LIKE ? OR CONCAT(pat.nom_pat, ' ', pat.prenom_pat) LIKE ? ) AND med.id_med = ? ";
+                "CONCAT(pat.nom_pat, ' ', pat.prenom_pat) LIKE ? AND med.id_med = ? ";
 
         // Filter: etat_rdv
         if (!etatRdv.equals("all")) {
@@ -135,19 +146,30 @@ public class RdvPatMedDAO {
             query += "AND rdv.heure_fin <= ? ";
         }
 
-        query += " ORDER BY rdv.date_rdv, rdv.heure_debut DESC ";
+        query += " ORDER BY rdv.date_rdv, rdv.heure_debut, rdv.id_rdv DESC ";
 
         try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             search = "%" + search + "%";
             stmt.setString(1, search);
-            stmt.setString(2, search);
-            stmt.setString(3, rdvIdMed);
-            int index = 4;
+            stmt.setString(2, rdvIdMed);
+            int index = 3;
             if (!etatRdv.equals("all") && !etatRdv.equals("dépassé")) stmt.setString(index++, etatRdv);
-            if (dateRdvDebut != null) stmt.setObject(index++, dateRdvDebut);
-            if (dateRdvFin != null) stmt.setObject(index++, dateRdvFin);
-            if (heureDebut != null) stmt.setObject(index++, heureDebut);
-            if (heureFin != null) stmt.setObject(index++, heureFin);
+            if (dateRdvDebut != null && dateRdvFin != null) {
+                stmt.setObject(index++, dateRdvDebut);
+                stmt.setObject(index++, dateRdvFin);
+            } else if (dateRdvDebut != null) {
+                stmt.setObject(index++, dateRdvDebut);
+            } else if (dateRdvFin != null) {
+                stmt.setObject(index++, dateRdvFin);
+            }
+            if (heureDebut != null && heureFin != null) {
+                stmt.setObject(index++, heureDebut);
+                stmt.setObject(index++, heureFin);
+            } else if (heureDebut != null) {
+                stmt.setObject(index++, heureDebut);
+            } else if (heureFin != null) {
+                stmt.setObject(index++, heureFin);
+            }
 
             ResultSet rs = stmt.executeQuery();
 

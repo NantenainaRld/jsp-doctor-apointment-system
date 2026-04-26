@@ -31,7 +31,7 @@ public class Disponibilite {
     // setters
 
     public void setDispoIdMed(String dispoIdMed) {
-        this.dispoIdMed = dispoIdMed.toUpperCase();
+        this.dispoIdMed = dispoIdMed;
     }
 
     public void setDateDispo(LocalDate dateDispo) {
