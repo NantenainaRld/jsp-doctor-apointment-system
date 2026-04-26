@@ -1,10 +1,13 @@
 package com.doctorapointment.dao;
 
 import com.doctorapointment.model.Disponibilite;
+import com.mysql.cj.protocol.Resultset;
 import com.mysql.cj.xdevapi.PreparableStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.print.attribute.standard.DateTimeAtCompleted;
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -54,15 +57,18 @@ public class DisponibiliteDAO {
     }
 
     // chevauchement
-    public boolean chevaucheExistant(Disponibilite dispo) throws SQLException {
+    public boolean existeChevauche(Disponibilite dispo) throws SQLException {
         String query = "SELECT COUNT(*) FROM disponibilite WHERE date_dispo = ? " +
-                "AND dispo_id_med = ? AND debut_dispo < ? AND fin_dispo > ?";
+                "AND dispo_id_med = ? AND ( (debut_dispo < ? AND fin_dispo > ?) " +
+                "OR (debut_dispo = ? AND fin_dispo = ?) )";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setObject(1, dispo.getDateDispo());
             stmt.setString(2, dispo.getDispoIdMed());
             stmt.setObject(3, dispo.getFinDispo());
             stmt.setObject(4, dispo.getDebutDispo());
+            stmt.setObject(5, dispo.getDebutDispo());
+            stmt.setObject(6, dispo.getFinDispo());
             ResultSet rs = stmt.executeQuery();
             return rs.next() && rs.getInt(1) > 0;
         }
@@ -130,5 +136,64 @@ public class DisponibiliteDAO {
         }
 
         return listDispo;
+    }
+
+    // update disponibilite
+    public boolean updatDisponibilite(Disponibilite disponibilite) throws SQLException {
+        String query = "UPDATE disponibilite SET debut_dispo = ? , fin_dispo = ? WHERE id_dispo = ? ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setObject(1, disponibilite.getDebutDispo());
+            stmt.setObject(2, disponibilite.getFinDispo());
+            stmt.setInt(3, disponibilite.getIdDispo());
+
+            return stmt.executeUpdate() >= 0;
+        }
+    }
+
+    // chevauchement (exclu)
+    public boolean chevaucheExcluExistant(Disponibilite dispo) throws SQLException {
+        String query = "SELECT COUNT(*) FROM disponibilite WHERE date_dispo = ? " +
+                "AND dispo_id_med = ? AND ((debut_dispo < ? AND fin_dispo > ?) " +
+                "OR (debut_dispo = ? AND fin_dispo = ?)) AND id_dispo != ? ";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setObject(1, dispo.getDateDispo());
+            stmt.setString(2, dispo.getDispoIdMed());
+            stmt.setObject(3, dispo.getFinDispo());
+            stmt.setObject(4, dispo.getDebutDispo());
+            stmt.setObject(5, dispo.getDebutDispo());
+            stmt.setObject(6, dispo.getFinDispo());
+            stmt.setInt(7, dispo.getIdDispo());
+
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        }
+    }
+
+    // find by id
+    public Disponibilite findById(int idDispo) throws SQLException {
+        String query = "SELECT * FROM disponibilite WHERE id_dispo = ? ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idDispo);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                Disponibilite dispo = new Disponibilite();
+                dispo.setIdDispo(rs.getInt("id_dispo"));
+                dispo.setDispoIdMed(rs.getString("dispo_id_med"));
+                dispo.setDateDispo(rs.getObject("date_dispo", LocalDate.class));
+                dispo.setDebutDispo(rs.getObject("debut_dispo", LocalTime.class));
+                dispo.setFinDispo(rs.getObject("fin_dispo", LocalTime.class));
+
+                return dispo;
+            }
+
+            return null;
+        }
     }
 }

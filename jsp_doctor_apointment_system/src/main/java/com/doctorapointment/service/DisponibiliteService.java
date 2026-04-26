@@ -54,7 +54,7 @@ public class DisponibiliteService {
             }
 
             // Verification: chevauchement disponibilite
-            if (dispoDAO.chevaucheExistant(disponibilite)) {
+            if (dispoDAO.existeChevauche(disponibilite)) {
                 return new ServiceResult(false, "La date et heure de disponibilité existe déjà ou se chevauche.");
             }
 
@@ -109,6 +109,101 @@ public class DisponibiliteService {
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         } catch (Exception e) {
             log.error("Error filtering disponibilité", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // update disponibilite medecin
+    public ServiceResult updateDispoMedecin(Disponibilite disponibilite) {
+        try {
+            // Validation: heure_dispo
+            if (disponibilite.getDebutDispo() == null || disponibilite.getFinDispo() == null) {
+                return new ServiceResult(false, "Veuillez compléter le créneau (heure début et fin).");
+            }
+            if (disponibilite.getDebutDispo().isAfter(disponibilite.getFinDispo())) {
+                return new ServiceResult(false, "L'heure de début ne doit pas être après l'heure de fin.");
+            }
+            long duree = ChronoUnit.MINUTES.between(disponibilite.getDebutDispo(), disponibilite.getFinDispo());
+            if (duree < 10) {
+                return new ServiceResult(false, "La durée de disponibilité ne doit pas être moins de 10 minutes");
+            }
+
+            // Verification: disponibilite exist
+            Disponibilite dispoFind = dispoDAO.findById(disponibilite.getIdDispo());
+            if (dispoFind == null) {
+                return new ServiceResult(false, "Cette disponibilité n'existe pas.");
+            }
+            if (!dispoFind.getDispoIdMed().equals(disponibilite.getDispoIdMed())) {
+                return new ServiceResult(false, "Cette horaire ne vous appartient pas.");
+            }
+
+            // Verification: conflit exist
+            Disponibilite dispoConf = new Disponibilite();
+            dispoConf.setIdDispo(disponibilite.getIdDispo());
+            dispoConf.setDispoIdMed(dispoFind.getDispoIdMed());
+            dispoConf.setDateDispo(dispoFind.getDateDispo());
+            dispoConf.setDebutDispo(disponibilite.getDebutDispo());
+            dispoConf.setFinDispo(disponibilite.getFinDispo());
+            if (dispoDAO.chevaucheExcluExistant(dispoConf)) {
+                return new ServiceResult(false, "Cet horaire existe déjà ou se chevauche, veuillez modifier.");
+            }
+
+            // update disponibilite
+            if(dispoDAO.updatDisponibilite(disponibilite)){
+                return  new ServiceResult(true,null);
+            }
+            return  new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error updating disponibilite", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // update disponibilité
+    public ServiceResult updateDispo(Disponibilite disponibilite) {
+        try {
+            // Validation: heure_dispo
+            if (disponibilite.getDebutDispo() == null || disponibilite.getFinDispo() == null) {
+                return new ServiceResult(false, "Veuillez compléter le créneau (heure début et fin).");
+            }
+            if (disponibilite.getDebutDispo().isAfter(disponibilite.getFinDispo())) {
+                return new ServiceResult(false, "L'heure de début ne doit pas être après l'heure de fin.");
+            }
+            long duree = ChronoUnit.MINUTES.between(disponibilite.getDebutDispo(), disponibilite.getFinDispo());
+            if (duree < 10) {
+                return new ServiceResult(false, "La durée de disponibilité ne doit pas être moins de 10 minutes");
+            }
+
+            // Verification: disponibilite exist
+            Disponibilite dispoFind = dispoDAO.findById(disponibilite.getIdDispo());
+            if (dispoFind == null) {
+                return new ServiceResult(false, "Cette disponibilité n'existe pas.");
+            }
+
+            // Verification: conflit exist
+            Disponibilite dispoConf = new Disponibilite();
+            dispoConf.setIdDispo(disponibilite.getIdDispo());
+            dispoConf.setDispoIdMed(dispoFind.getDispoIdMed());
+            dispoConf.setDateDispo(dispoFind.getDateDispo());
+            dispoConf.setDebutDispo(disponibilite.getDebutDispo());
+            dispoConf.setFinDispo(disponibilite.getFinDispo());
+            if (dispoDAO.chevaucheExcluExistant(dispoConf)) {
+                return new ServiceResult(false, "Cet horaire existe déjà ou se chevauche, veuillez modifier.");
+            }
+
+            // update disponibilite
+            if(dispoDAO.updatDisponibilite(disponibilite)){
+                return  new ServiceResult(true,null);
+            }
+            return  new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error updating disponibilite", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }

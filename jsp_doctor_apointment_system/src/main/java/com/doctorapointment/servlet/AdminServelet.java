@@ -267,8 +267,8 @@ public class AdminServelet extends HttpServlet {
 //        Disponibilite disponibilite = new Disponibilite();
 //        disponibilite.setDispoIdMed("m004");
 //        disponibilite.setDateDispo(LocalDate.of(2026,5,2));
-//        disponibilite.setDebutDispo(LocalTime.of(11,12));
-//        disponibilite.setFinDispo(LocalTime.of(12,14));
+//        disponibilite.setDebutDispo(LocalTime.of(16,20));
+//        disponibilite.setFinDispo(LocalTime.of(17,25));
 //        DisponibiliteService dipoSer = new DisponibiliteService();
 //        ServiceResult serRes =dipoSer.addDispo(disponibilite);
 //        if(serRes.isSuccess()){
@@ -279,14 +279,45 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // ======== filter disponibilite =======
+//        DisponibiliteService dispoSer = new DisponibiliteService();
+//        ServiceResult serRes = dispoSer.filterDispo("m004",
+//                LocalDate.of(2026, 5, 2), null, null, null);
+//        if(serRes.isSuccess()){
+//            for(Disponibilite dispo : (List<Disponibilite>) serRes.getData()){
+//                response.getWriter().print(dispo.getDateDispo());
+//            }
+//            response.getWriter().print("end");
+//        }
+//        else{
+//            response.getWriter().print(serRes.getErrorMessage());
+//        }
+
+        // ============== update disponibilite medecin =============
+//        Disponibilite disponibilite = new Disponibilite();
+//        disponibilite.setIdDispo(2);
+//        disponibilite.setDebutDispo(LocalTime.of(12,13));
+//        disponibilite.setFinDispo(LocalTime.of(16,50));
+//        disponibilite.setDispoIdMed("m004");
+//        DisponibiliteService dispoSer = new DisponibiliteService();
+//        ServiceResult serRes = dispoSer.updateDispoMedecin(disponibilite);
+//
+//        if(serRes.isSuccess()){
+//            response.getWriter().print("updated");
+//        }
+//        else{
+//            response.getWriter().print(serRes.getErrorMessage());
+//        }
+
+        // =============== update disponibilite ============
+        Disponibilite disponibilite = new Disponibilite();
+        disponibilite.setIdDispo(2);
+        disponibilite.setDebutDispo(LocalTime.of(12,13));
+        disponibilite.setFinDispo(LocalTime.of(16,50));
         DisponibiliteService dispoSer = new DisponibiliteService();
-        ServiceResult serRes = dispoSer.filterDispo("m004",
-                LocalDate.of(2026, 5, 2), null, null, null);
+        ServiceResult serRes = dispoSer.updateDispo(disponibilite);
+
         if(serRes.isSuccess()){
-            for(Disponibilite dispo : (List<Disponibilite>) serRes.getData()){
-                response.getWriter().print(dispo.getDateDispo());
-            }
-            response.getWriter().print("end");
+            response.getWriter().print("updated");
         }
         else{
             response.getWriter().print(serRes.getErrorMessage());
