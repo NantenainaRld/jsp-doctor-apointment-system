@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import com.doctorapointment.dao.MedecinDAO;
 import com.doctorapointment.model.Medecin;
 
+import java.sql.SQLException;
+
 public class MedecinService {
     private MedecinDAO medDAO = new MedecinDAO();
     private static final Logger log = LoggerFactory.getLogger(MedecinService.class);
@@ -193,5 +195,18 @@ public class MedecinService {
         boolean deleteMedResult = MedecinDAO.deleteMedecin(idMed);
         return new ServiceResult(deleteMedResult, deleteMedResult ? null :
                 "Une erreur est survenue lors de la suppréssion du compte du médecin");
+    }
+
+    // top medecin
+    public ServiceResult topMedecin() {
+        try {
+            return new ServiceResult(true, null, medDAO.topMedecin());
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error getting top medecin", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
     }
 }

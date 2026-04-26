@@ -309,15 +309,28 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // =============== update disponibilite ============
-        Disponibilite disponibilite = new Disponibilite();
-        disponibilite.setIdDispo(2);
-        disponibilite.setDebutDispo(LocalTime.of(12,13));
-        disponibilite.setFinDispo(LocalTime.of(16,50));
-        DisponibiliteService dispoSer = new DisponibiliteService();
-        ServiceResult serRes = dispoSer.updateDispo(disponibilite);
+//        Disponibilite disponibilite = new Disponibilite();
+//        disponibilite.setIdDispo(2);
+//        disponibilite.setDebutDispo(LocalTime.of(12,13));
+//        disponibilite.setFinDispo(LocalTime.of(16,50));
+//        DisponibiliteService dispoSer = new DisponibiliteService();
+//        ServiceResult serRes = dispoSer.updateDispo(disponibilite);
+//
+//        if(serRes.isSuccess()){
+//            response.getWriter().print("updated");
+//        }
+//        else{
+//            response.getWriter().print(serRes.getErrorMessage());
+//        }
 
+        // =========== top medecin ========
+        MedecinService medSer = new MedecinService();
+        ServiceResult serRes = medSer.topMedecin();
         if(serRes.isSuccess()){
-            response.getWriter().print("updated");
+            for(Medecin med: (List<Medecin>) serRes.getData()){
+                response.getWriter().print(med.getNomMed());
+            }
+            response.getWriter().print("end");
         }
         else{
             response.getWriter().print(serRes.getErrorMessage());

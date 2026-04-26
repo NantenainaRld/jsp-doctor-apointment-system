@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.doctorapointment.model.Medecin;
 
+import javax.xml.crypto.Data;
 import javax.xml.transform.Result;
 
 public class MedecinDAO {
@@ -179,4 +180,33 @@ public class MedecinDAO {
         }
     }
 
+    // top medecin
+    public List<Medecin> topMedecin() throws SQLException {
+        List<Medecin> lisMed = new ArrayList<>();
+
+        String query = "SELECT med.id_med, med.nom_med, med.prenom_med, med.specialite, " +
+                " med.lieu, med.taux_horaire, COUNT(rdv.id_rdv) AS nb_rdv " +
+                "FROM medecin med " +
+                "JOIN rdv rdv ON rdv.rdv_id_med = med.id_med " +
+                "GROUP BY med.id_med, med.nom_med, med.prenom_med, med.specialite, med.lieu, med.taux_horaire " +
+                "ORDER BY nb_rdv DESC " +
+                "LIMIT 5";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             ResultSet rs = conn.createStatement().executeQuery(query)) {
+            while (rs.next()) {
+                Medecin medecin = new Medecin();
+                medecin.setIdMed(rs.getString("id_med"));
+                medecin.setNomMed(rs.getString("nom_med"));
+                medecin.setPrenomMed(rs.getString("prenom_med"));
+                medecin.setSpecialite(rs.getString("specialite"));
+                medecin.setLieu(rs.getString("lieu"));
+                medecin.setTauxHoraire(rs.getDouble("taux_horaire"));
+
+                lisMed.add(medecin);
+            }
+        }
+
+        return lisMed;
+    }
 }
