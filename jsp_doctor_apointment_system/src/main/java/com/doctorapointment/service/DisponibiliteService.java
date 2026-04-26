@@ -149,10 +149,10 @@ public class DisponibiliteService {
             }
 
             // update disponibilite
-            if(dispoDAO.updatDisponibilite(disponibilite)){
-                return  new ServiceResult(true,null);
+            if (dispoDAO.updatDisponibilite(disponibilite)) {
+                return new ServiceResult(true, null);
             }
-            return  new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
+            return new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
         } catch (SQLException e) {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
@@ -195,15 +195,63 @@ public class DisponibiliteService {
             }
 
             // update disponibilite
-            if(dispoDAO.updatDisponibilite(disponibilite)){
-                return  new ServiceResult(true,null);
+            if (dispoDAO.updatDisponibilite(disponibilite)) {
+                return new ServiceResult(true, null);
             }
-            return  new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
+            return new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
         } catch (SQLException e) {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         } catch (Exception e) {
             log.error("Error updating disponibilite", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // delete disponibilite medecin
+    public ServiceResult deleteDispoMedecin(Disponibilite disponibilite) {
+        try {
+            // Verification: disponibilite exist and medecin = medecin
+            Disponibilite dispoFind = dispoDAO.findById(disponibilite.getIdDispo());
+            if (dispoFind == null) {
+                return new ServiceResult(false, "Cette disponibilité n'existe pas.");
+            }
+            if (!dispoFind.getDispoIdMed().equals(disponibilite.getDispoIdMed()))
+                return new ServiceResult(false, "Cette disponibilité ne vous appartient pas.");
+
+            // Delete disponibilite
+            if (dispoDAO.deleteDisponibilite(disponibilite.getIdDispo())) {
+                return new ServiceResult(true, null);
+            }
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression de la disponibilité.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting disponibilite", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // delete disponibilite
+    public ServiceResult deleteDispo(Disponibilite disponibilite) {
+        try {
+            // Verification: disponibilite exist and medecin = medecin
+            Disponibilite dispoFind = dispoDAO.findById(disponibilite.getIdDispo());
+            if (dispoFind == null) {
+                return new ServiceResult(false, "Cette disponibilité n'existe pas.");
+            }
+
+            // Delete disponibilite
+            if (dispoDAO.deleteDisponibilite(disponibilite.getIdDispo())) {
+                return new ServiceResult(true, null);
+            }
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression de la disponibilité.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting disponibilite", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }

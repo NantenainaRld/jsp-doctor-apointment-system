@@ -309,15 +309,40 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // =============== update disponibilite ============
-        Disponibilite disponibilite = new Disponibilite();
-        disponibilite.setIdDispo(2);
-        disponibilite.setDebutDispo(LocalTime.of(12,13));
-        disponibilite.setFinDispo(LocalTime.of(16,50));
-        DisponibiliteService dispoSer = new DisponibiliteService();
-        ServiceResult serRes = dispoSer.updateDispo(disponibilite);
+//        Disponibilite disponibilite = new Disponibilite();
+//        disponibilite.setIdDispo(2);
+//        disponibilite.setDebutDispo(LocalTime.of(12,13));
+//        disponibilite.setFinDispo(LocalTime.of(16,50));
+//        DisponibiliteService dispoSer = new DisponibiliteService();
+//        ServiceResult serRes = dispoSer.updateDispo(disponibilite);
+//
+//        if(serRes.isSuccess()){
+//            response.getWriter().print("updated");
+//        }
+//        else{
+//            response.getWriter().print(serRes.getErrorMessage());
+//        }
 
+        // ============= delete disponibilite medecin ==========
+//        Disponibilite disponibilite = new Disponibilite();
+//        disponibilite.setIdDispo(3);
+//        disponibilite.setDispoIdMed("ss");
+//        DisponibiliteService dispoSer = new DisponibiliteService();
+//        ServiceResult serRes = dispoSer.deleteDispoMedecin(disponibilite);
+//        if(serRes.isSuccess()){
+//            response.getWriter().print("deleted");
+//        }
+//        else{
+//            response.getWriter().print(serRes.getErrorMessage());
+//        }
+
+        // ============= delete disponibilite =========
+        Disponibilite disponibilite = new Disponibilite();
+        disponibilite.setIdDispo(3);
+        DisponibiliteService dispoSer = new DisponibiliteService();
+        ServiceResult serRes = dispoSer.deleteDispo(disponibilite);
         if(serRes.isSuccess()){
-            response.getWriter().print("updated");
+            response.getWriter().print("deleted");
         }
         else{
             response.getWriter().print(serRes.getErrorMessage());
