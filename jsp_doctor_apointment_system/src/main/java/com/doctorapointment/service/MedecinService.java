@@ -85,20 +85,26 @@ public class MedecinService {
 
     // login medecin
     public ServiceResult loginMedecin(String idMed, String mdpMed) {
-        idMed = idMed == null ? "" : idMed.trim();
-        mdpMed = mdpMed == null ? "" : mdpMed;
+        try {
 
-        // Validation: login
-        if (idMed.isEmpty() || mdpMed.isEmpty()) return new ServiceResult(false,
-                "L'identifiant et mot de passe requis");
-        Medecin medecin = medDAO.findById(idMed);
-        if (medecin == null || !BCrypt.checkpw(mdpMed, medecin.getMdpMed())) {
-            return new ServiceResult(false, "Identifiant ou mot de passe incorrect.");
+            idMed = idMed == null ? "" : idMed.trim();
+            mdpMed = mdpMed == null ? "" : mdpMed;
+
+            // Validation: login
+            if (idMed.isEmpty() || mdpMed.isEmpty()) return new ServiceResult(false,
+                    "L'identifiant et mot de passe requis");
+            Medecin medecin = medDAO.findById(idMed);
+            if (medecin == null || !BCrypt.checkpw(mdpMed, medecin.getMdpMed())) {
+                return new ServiceResult(false, "Identifiant ou mot de passe incorrect.");
+            }
+
+            medecin.setMdpMed(null);
+
+            return new ServiceResult(true, null, medecin);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         }
-
-        medecin.setMdpMed(null);
-
-        return new ServiceResult(true, null, medecin);
     }
 
     // filter medecin
@@ -113,88 +119,104 @@ public class MedecinService {
 
     // update medecin
     public ServiceResult updateMedecin(Medecin medecin) {
-        String nomMed = medecin.getNomMed() != null ? medecin.getNomMed().trim() : "";
-        String prenomMed = medecin.getPrenomMed() != null ? medecin.getPrenomMed().trim() : "";
-        String specialite = medecin.getSpecialite() != null ? medecin.getSpecialite().trim() : "";
-        String lieu = medecin.getLieu() != null ? medecin.getLieu().trim() : "";
-        String mdpMed = medecin.getMdpMed() != null ? medecin.getMdpMed() : "";
+        try {
+            String nomMed = medecin.getNomMed() != null ? medecin.getNomMed().trim() : "";
+            String prenomMed = medecin.getPrenomMed() != null ? medecin.getPrenomMed().trim() : "";
+            String specialite = medecin.getSpecialite() != null ? medecin.getSpecialite().trim() : "";
+            String lieu = medecin.getLieu() != null ? medecin.getLieu().trim() : "";
+            String mdpMed = medecin.getMdpMed() != null ? medecin.getMdpMed() : "";
 
-        // Validation: nom_med
-        if (nomMed.isEmpty()) {
-            return new ServiceResult(false, "Veuillez remplir le nom.");
-        }
-        if (nomMed.matches(".*\\d.*")) {
-            return new ServiceResult(false, "Le nom ne doit pas contenir des chiffres.");
-        }
-        medecin.setNomMed(nomMed);
-
-        // Validation: prenom_med
-        if (!prenomMed.isEmpty() && prenomMed.matches(".*\\d.*")) {
-            return new ServiceResult(false, "Le prénom ne doit pas contenir des chiffres.");
-        }
-        medecin.setPrenomMed(prenomMed);
-
-        // Validation: specialite
-        if (specialite.isEmpty()) {
-            return new ServiceResult(false, "La spécialité est requise.");
-        }
-        medecin.setSpecialite(specialite);
-
-        // Validation: lieu
-        if (lieu.isEmpty()) {
-            return new ServiceResult(false, "Le lieu est requis.");
-        }
-        medecin.setLieu(lieu);
-
-        // Validation: mdp_med
-        if (!mdpMed.isEmpty() && mdpMed.length() < 6) {
-            return new ServiceResult(false, "Le mot de passe doit être au moins 6 caractères.");
-        }
-
-        // Validation: taux_horaire
-        if (medecin.getTauxHoraire() < 0) {
-            return new ServiceResult(false, "Le taux horaire ne doit pas être négatif.");
-        }
-
-        // mdp hash
-        if (!mdpMed.isEmpty())
-            try {
-                mdpMed = BCrypt.hashpw(mdpMed, BCrypt.gensalt());
-            } catch (IllegalArgumentException e) {
-                log.error("Error during hashing mdp_med", e);
-                return new ServiceResult(false, "Une erreur est survenue, veuillez réssayer.");
+            // Validation: nom_med
+            if (nomMed.isEmpty()) {
+                return new ServiceResult(false, "Veuillez remplir le nom.");
             }
-        medecin.setMdpMed(mdpMed);
+            if (nomMed.matches(".*\\d.*")) {
+                return new ServiceResult(false, "Le nom ne doit pas contenir des chiffres.");
+            }
+            medecin.setNomMed(nomMed);
 
-        // set id_med
-        medecin.setIdMed(medecin.getIdMed());
+            // Validation: prenom_med
+            if (!prenomMed.isEmpty() && prenomMed.matches(".*\\d.*")) {
+                return new ServiceResult(false, "Le prénom ne doit pas contenir des chiffres.");
+            }
+            medecin.setPrenomMed(prenomMed);
 
-        // Vaidation: medecin exist
-        if (medDAO.findById(medecin.getIdMed()) == null)
-            return new ServiceResult(false,
-                    "Le médecin avec l'ID <b>" + medecin.getIdMed() + "</b> n'existe pas.");
+            // Validation: specialite
+            if (specialite.isEmpty()) {
+                return new ServiceResult(false, "La spécialité est requise.");
+            }
+            medecin.setSpecialite(specialite);
 
-        // Update medecin
-        boolean updateMedResult = medDAO.updateMedecin(medecin);
-        if (updateMedResult) {
-            return new ServiceResult(true, null);
+            // Validation: lieu
+            if (lieu.isEmpty()) {
+                return new ServiceResult(false, "Le lieu est requis.");
+            }
+            medecin.setLieu(lieu);
+
+            // Validation: mdp_med
+            if (!mdpMed.isEmpty() && mdpMed.length() < 6) {
+                return new ServiceResult(false, "Le mot de passe doit être au moins 6 caractères.");
+            }
+
+            // Validation: taux_horaire
+            if (medecin.getTauxHoraire() < 0) {
+                return new ServiceResult(false, "Le taux horaire ne doit pas être négatif.");
+            }
+
+            // mdp hash
+            if (!mdpMed.isEmpty())
+                try {
+                    mdpMed = BCrypt.hashpw(mdpMed, BCrypt.gensalt());
+                } catch (IllegalArgumentException e) {
+                    log.error("Error during hashing mdp_med", e);
+                    return new ServiceResult(false, "Une erreur est survenue, veuillez réssayer.");
+                }
+            medecin.setMdpMed(mdpMed);
+
+            // set id_med
+            medecin.setIdMed(medecin.getIdMed());
+
+            // Vaidation: medecin exist
+            if (medDAO.findById(medecin.getIdMed()) == null)
+                return new ServiceResult(false,
+                        "Le médecin avec l'ID <b>" + medecin.getIdMed() + "</b> n'existe pas.");
+
+            // Update medecin
+            boolean updateMedResult = medDAO.updateMedecin(medecin);
+            if (updateMedResult) {
+                return new ServiceResult(true, null);
+            }
+            return new ServiceResult(false, "Une erreur est survenue lors de " +
+                    "la modification des informations de médecin.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error updating medecin", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
-        return new ServiceResult(false, "Une erreur est survenue lors de " +
-                "la modification des informations de médecin.");
     }
 
     // delete medecin
     public ServiceResult deleteMed(String idMed) {
-        idMed = idMed == null ? "" : idMed.trim();
+        try {
+            idMed = idMed == null ? "" : idMed.trim();
 
-        // Validation: medeci exist
-        if (medDAO.findById(idMed) == null)
-            return new ServiceResult(false,
-                    "Le médecin  avec l'ID <b>" + idMed + "</b> n'existe pas.");
+            // Validation: medeci exist
+            if (medDAO.findById(idMed) == null)
+                return new ServiceResult(false,
+                        "Le médecin  avec l'ID <b>" + idMed + "</b> n'existe pas.");
 
-        boolean deleteMedResult = MedecinDAO.deleteMedecin(idMed);
-        return new ServiceResult(deleteMedResult, deleteMedResult ? null :
-                "Une erreur est survenue lors de la suppréssion du compte du médecin");
+            boolean deleteMedResult = MedecinDAO.deleteMedecin(idMed);
+            return new ServiceResult(deleteMedResult, deleteMedResult ? null :
+                    "Une erreur est survenue lors de la suppréssion du compte du médecin");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting medecin", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
     }
 
     // top medecin
@@ -207,6 +229,25 @@ public class MedecinService {
         } catch (Exception e) {
             log.error("Error getting top medecin", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // find medecin by id
+    public ServiceResult findById(String idMed) {
+        try {
+            // finding medecin by id
+            Medecin med = medDAO.findById(idMed);
+            if (med == null) {
+                return new ServiceResult(false, "Le médecin avec l'ID <b>" + idMed + "</b> n'existe pas.");
+            }
+            med.setMdpMed(null);
+            return new ServiceResult(true, null, med);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error finding medecin by id", e);
+            return new ServiceResult(false, "Une erreur s'est produite.");
         }
     }
 }

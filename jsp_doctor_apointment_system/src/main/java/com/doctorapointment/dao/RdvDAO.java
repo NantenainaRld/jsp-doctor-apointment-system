@@ -55,23 +55,41 @@ public class RdvDAO {
     // filter rdv dispo
     public List<Rdv> filterRdvDispo(Rdv rdv, LocalTime heureDebut, LocalTime heureFin) throws SQLException {
         List<Rdv> listRdv = new ArrayList<>();
-        String query = "SELECT id_rdv, heure_debut, heure_fin FROM rdv WHERE date_rdv = ? AND rdv_id_med = ? ";
+        String query = "SELECT id_rdv, heure_debut, heure_fin FROM rdv WHERE date_rdv = ? AND rdv_id_med = ? AND etat_rdv != 'annulé' ";
+
+        // Add filters for time range
         if (heureDebut != null && heureFin != null) {
-            query += "AND heure_debut >= ? AND heure_fin <= ?";
+            query += "AND ((heure_debut >= ? AND heure_debut < ?) OR (heure_fin > ? AND heure_fin <= ?) OR (heure_debut <= ? AND heure_fin >= ?)) ";
         } else if (heureDebut != null) {
-            query += "AND heure_debut >= ? ";
+            query += "AND heure_fin > ? ";
         } else if (heureFin != null) {
-            query += "AND heure_fin <= ? ";
+            query += "AND heure_debut < ? ";
         }
+
         query += "ORDER BY heure_debut, id_rdv";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setObject(1, rdv.getDateRdv());
             stmt.setString(2, rdv.getRdvIdMed());
+
             int index = 3;
-            if (heureDebut != null) stmt.setObject(index++, heureDebut);
-            if (heureFin != null) stmt.setObject(index++, heureFin);
+            if (heureDebut != null && heureFin != null) {
+                // Check for overlapping intervals
+                stmt.setObject(index++, heureDebut);  // heure_debut >= heureDebut
+                stmt.setObject(index++, heureFin);    // heure_debut < heureFin
+                stmt.setObject(index++, heureDebut);  // heure_fin > heureDebut
+                stmt.setObject(index++, heureFin);    // heure_fin <= heureFin
+                stmt.setObject(index++, heureDebut);  // heure_debut <= heureDebut
+                stmt.setObject(index++, heureFin);    // heure_fin >= heureFin
+            } else if (heureDebut != null) {
+                // Rendez-vous that end after heureDebut
+                stmt.setObject(index++, heureDebut);
+            } else if (heureFin != null) {
+                // Rendez-vous that start before heureFin
+                stmt.setObject(index++, heureFin);
+            }
 
             ResultSet rs = stmt.executeQuery();
 
@@ -80,7 +98,6 @@ public class RdvDAO {
                 rdvv.setIdRdv(rs.getInt("id_rdv"));
                 rdvv.setHeureDebut(rs.getObject("heure_debut", LocalTime.class));
                 rdvv.setHeureFin(rs.getObject("heure_fin", LocalTime.class));
-
                 listRdv.add(rdvv);
             }
         }

@@ -149,10 +149,10 @@ public class DisponibiliteService {
             }
 
             // update disponibilite
-            if(dispoDAO.updatDisponibilite(disponibilite)){
-                return  new ServiceResult(true,null);
+            if (dispoDAO.updatDisponibilite(disponibilite)) {
+                return new ServiceResult(true, null);
             }
-            return  new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
+            return new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
         } catch (SQLException e) {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
@@ -195,15 +195,33 @@ public class DisponibiliteService {
             }
 
             // update disponibilite
-            if(dispoDAO.updatDisponibilite(disponibilite)){
-                return  new ServiceResult(true,null);
+            if (dispoDAO.updatDisponibilite(disponibilite)) {
+                return new ServiceResult(true, null);
             }
-            return  new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
+            return new ServiceResult(false, "Une erreur est survenue lors de la modification de la disponibilité.");
         } catch (SQLException e) {
             log.error("Error SQL", e);
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         } catch (Exception e) {
             log.error("Error updating disponibilite", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // find by id
+    public ServiceResult findById(int idDispo) {
+        try {
+            Disponibilite disponibilite = dispoDAO.findById(idDispo);
+            if (disponibilite == null) {
+                return new ServiceResult(false,
+                        "Disponibilité avec l'ID <b>" + idDispo + "</b> n/existe pas.");
+            }
+            return new ServiceResult(true, null, disponibilite);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error finding disponibilite by id", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }

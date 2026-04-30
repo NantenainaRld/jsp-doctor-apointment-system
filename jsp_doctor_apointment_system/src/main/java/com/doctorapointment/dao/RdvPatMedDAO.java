@@ -26,7 +26,7 @@ public class RdvPatMedDAO {
 
         String query = "SELECT rdv.id_rdv, CONCAT(med.nom_med, ' ', med.prenom_med) AS nom_complet_med, " +
                 "med.specialite, rdv.date_rdv, rdv.etat_rdv, " +
-                "rdv.heure_debut, rdv.heure_fin, rdv.date_pris_rdv FROM rdv rdv JOIN medecin med ON " +
+                "rdv.heure_debut, rdv.heure_fin, rdv.date_pris_rdv, med.taux_horaire FROM rdv rdv JOIN medecin med ON " +
                 "med.id_med = rdv.rdv_id_med JOIN patient pat ON pat.id_pat = rdv.rdv_id_pat WHERE " +
                 "CONCAT(med.nom_med, ' ', med.prenom_med) LIKE ? AND pat.id_pat = ? ";
 
@@ -34,6 +34,8 @@ public class RdvPatMedDAO {
         if (!etatRdv.equals("all")) {
             if (etatRdv.equals("dépassé")) {
                 query += "AND (rdv.date_rdv < CURDATE() OR (rdv.date_rdv = CURDATE() AND rdv.heure_fin < NOW())) ";
+            } else if (etatRdv.equals("en attente")) {
+                query += "AND rdv.etat_rdv = 'en attente' AND (rdv.date_rdv > CURDATE() OR (rdv.date_rdv = CURDATE() AND rdv.heure_debut >= NOW())) ";
             } else {
                 query += "AND rdv.etat_rdv = ? ";
             }
@@ -64,7 +66,8 @@ public class RdvPatMedDAO {
             stmt.setString(1, search);
             stmt.setString(2, rdvIdPat);
             int index = 3;
-            if (!etatRdv.equals("all") && !etatRdv.equals("dépassé")) stmt.setString(index++, etatRdv);
+            if (!etatRdv.equals("all") && !etatRdv.equals("dépassé") && !etatRdv.equals("en attente"))
+                stmt.setString(index++, etatRdv);
             if (dateRdvDebut != null && dateRdvFin != null) {
                 stmt.setObject(index++, dateRdvDebut);
                 stmt.setObject(index++, dateRdvFin);
@@ -99,6 +102,7 @@ public class RdvPatMedDAO {
                 rdvPatMed.setDateRdv(rs.getObject("date_rdv", LocalDate.class));
                 rdvPatMed.setHeureDebut(rs.getObject("heure_debut", LocalTime.class));
                 rdvPatMed.setHeureFin(rs.getObject("heure_fin", LocalTime.class));
+                rdvPatMed.setTauxHoraire(rs.getDouble("taux_horaire"));
 
                 listRdv.add(rdvPatMed);
             }

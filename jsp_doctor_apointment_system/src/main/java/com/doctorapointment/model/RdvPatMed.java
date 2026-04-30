@@ -10,6 +10,7 @@ public class RdvPatMed {
     private LocalDate dateRdv, dateNais;
     private LocalTime heureDebut, heureFin;
     private LocalDateTime datePrisRdv;
+    private double tauxHoraire;
 
     // getters
 
@@ -56,6 +57,10 @@ public class RdvPatMed {
     public String getEmailPat() {
         return emailPat;
     }
+
+    public double getTauxHoraire() {
+        return tauxHoraire;
+    }
     // setters
 
     public void setIdRdv(int idRdv) {
@@ -100,5 +105,9 @@ public class RdvPatMed {
 
     public void setEmailPat(String emailPat) {
         this.emailPat = emailPat;
+    }
+
+    public void setTauxHoraire(double tauxHoraire) {
+        this.tauxHoraire = tauxHoraire;
     }
 }

@@ -65,7 +65,7 @@ public class MedecinDAO {
     }
 
     // find by id
-    public Medecin findById(String idMed) {
+    public Medecin findById(String idMed) throws SQLException {
         String query = "SELECT id_med, nom_med, prenom_med," +
                 " specialite, lieu, mdp_med, taux_horaire FROM medecin WHERE id_med = ?";
 
@@ -86,10 +86,7 @@ public class MedecinDAO {
 
                 return medecin;
             }
-        } catch (SQLException e) {
-            log.error("Error finding medecin by id", e);
         }
-
         return null;
     }
 
@@ -100,7 +97,7 @@ public class MedecinDAO {
                 "OR lieu LIKE ?) ";
 
         // search : specialite
-        if (!specialite.isEmpty()) query += "AND specialite = ? ";
+        if (!specialite.isEmpty()) query += "AND specialite LIKE ? ";
         // search : order by taux_horaire
         if (taux.equals("desc")) {
             query += "ORDER BY taux_horaire DESC ";
@@ -117,7 +114,7 @@ public class MedecinDAO {
             stmt.setString(1, search);
             stmt.setString(2, search);
             stmt.setString(3, search);
-            if (!specialite.isEmpty()) stmt.setString(4, specialite);
+            if (!specialite.isEmpty()) stmt.setString(4, "%" + specialite + "%");
 
             ResultSet rs = stmt.executeQuery();
 

@@ -81,7 +81,8 @@ public class DisponibiliteDAO {
         List<Disponibilite> listDispo = new ArrayList<>();
 
         String query = "SELECT id_dispo, date_dispo, debut_dispo, fin_dispo " +
-                "FROM disponibilite WHERE dispo_id_med = ? ";
+                "FROM disponibilite WHERE dispo_id_med = ? " +
+                "AND (date_dispo > CURDATE() OR (date_dispo = CURDATE() AND fin_dispo >= NOW())) ";
 
         // Verification: date_dispo
         if (datetDebut != null && dateFin != null) {
@@ -96,9 +97,9 @@ public class DisponibiliteDAO {
         if (heureDebut != null && heureFin != null) {
             query += "AND debut_dispo <= ? AND fin_dispo >= ? "; // heureDebut, heureFin
         } else if (heureDebut != null) {
-            query += "AND debut_dispo <= ? "; // heureDebut
+            query += "AND debut_dispo >= ? "; // heureDebut
         } else if (heureFin != null) {
-            query += "AND fin_dispo >= ? "; // heureFin
+            query += "AND debut_dispo <= ? "; // heureFin
         }
 
         try (Connection conn = DatabaseConnection.getConnection();

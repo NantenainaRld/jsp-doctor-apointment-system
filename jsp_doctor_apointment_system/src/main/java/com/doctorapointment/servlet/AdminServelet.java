@@ -3,13 +3,16 @@ package com.doctorapointment.servlet;
 import com.doctorapointment.model.*;
 import com.doctorapointment.service.*;
 import com.mysql.cj.ServerVersion;
+import com.mysql.cj.Session;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -324,17 +327,31 @@ public class AdminServelet extends HttpServlet {
 //        }
 
         // =========== top medecin ========
-        MedecinService medSer = new MedecinService();
-        ServiceResult serRes = medSer.topMedecin();
-        if(serRes.isSuccess()){
-            for(Medecin med: (List<Medecin>) serRes.getData()){
-                response.getWriter().print(med.getNomMed());
-            }
-            response.getWriter().print("end");
-        }
-        else{
-            response.getWriter().print(serRes.getErrorMessage());
-        }
+//        MedecinService medSer = new MedecinService();
+//        ServiceResult serRes = medSer.topMedecin();
+//        if(serRes.isSuccess()){
+//            for(Medecin med: (List<Medecin>) serRes.getData()){
+//                response.getWriter().print(med.getNomMed());
+//            }
+//            response.getWriter().print("end");
+//        }
+//        else{
+//            response.getWriter().print(serRes.getErrorMessage());
+//        }
+
+
+        HttpSession session = request.getSession();
+        Patient patient = new Patient();
+        patient.setIdPat("P002");
+        patient.setNomPat("Jean");
+        patient.setPrenomPat("Dupoint");
+        session.setAttribute("patient",patient);
+        session.setAttribute("page_patient", "rdv");
+
+        RdvService rdvSer = new RdvService();
+        ServiceResult serRes = rdvSer.filterRdvPatient("","P003",null,null,null,null,null);
+        request.setAttribute("listRdv", serRes.getData());
+        request.getRequestDispatcher("WEB-INF/jsp/patient/index.jsp").forward(request,response);
     }
 
     /**
