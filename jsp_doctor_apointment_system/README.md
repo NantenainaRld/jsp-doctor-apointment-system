@@ -2,21 +2,6 @@
 
 A complete web-based appointment management system for doctors, patients, and administrators. Built with Java JSP/Servlets and Bootstrap 5.
 
-## Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Database Setup](#database-setup)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [Default Accounts](#default-accounts)
-- [Screenshots](#screenshots)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
-
 ---
 
 ## Features
