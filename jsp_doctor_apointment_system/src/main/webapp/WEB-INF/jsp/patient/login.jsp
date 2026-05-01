@@ -135,7 +135,7 @@
                     </div>
                     <!-- Back to home link -->
                     <div class="text-center mt-4">
-                        <a href="${pageContext.request.contextPath}/" class="text-decoration-none">
+                        <a href="${pageContext.request.contextPath}/home" class="text-decoration-none">
                             <i class="fad fa-home me-1"></i> Retour à l'accueil
                         </a>
                     </div>

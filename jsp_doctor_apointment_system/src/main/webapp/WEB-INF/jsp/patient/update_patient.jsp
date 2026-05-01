@@ -71,9 +71,9 @@ return;
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden profile-card">
                 <div class="card-header bg-primary py-3 border-0">
                     <div class="d-flex align-items-center text-light">
-                        <i class="fad fa-user-edit fa-2x me-3  "></i>
+                        <i class="fad fa-user-edit fa-2x me-3"></i>
                         <div>
-                            <h5 class="mb-0 fw-semibold">Modification du profil</h5>
+                            <h5 class="mb-0 fw-semibold">Modifier le profil</h5>
                         </div>
                     </div>
                 </div>
@@ -81,6 +81,7 @@ return;
                 <div class="card-body p-4">
                     <div class="text-center mb-2">ID: <b><%= patient.getIdPat() %></b></div>
                     <hr>
+
                     <!-- Error message -->
                     <%
                     String errorMessage = (String) request.getAttribute("error_message");
@@ -110,13 +111,12 @@ return;
                     %>
 
                     <!-- Update form -->
-                    <form method="post" action="${pageContext.request.contextPath}/patient">
+                    <form method="post" action="${pageContext.request.contextPath}/<%= userRole %>">
                         <input type="hidden" name="action" value="update_patient">
                         <input type="hidden" name="idPat" value="<%= patient.getIdPat() %>">
 
-                        <!-- Last % first name-->
-                        <div class="d-flex mb-3 gap-2 justify-content-between xbg-secondary rounded-4 p-2">
-                            <!-- Last name -->
+                        <!-- Last & first name -->
+                        <div class="d-flex mb-3 gap-2 justify-content-between rounded-4 p-2" style="background: #f8f9fa;">
                             <div class="w-100">
                                 <label class="form-label fw-semibold">
                                     <i class="fad fa-user me-1 text-primary"></i> Nom
@@ -124,8 +124,6 @@ return;
                                 <input type="text" class="form-control form-control-md rounded-3"
                                        name="nomPat" value="<%= patient.getNomPat() %>" required>
                             </div>
-
-                            <!-- First name -->
                             <div class="w-100">
                                 <label class="form-label fw-semibold">
                                     <i class="fad fa-user me-1 text-primary"></i> Prénom(s)
@@ -135,9 +133,8 @@ return;
                             </div>
                         </div>
 
-                        <!-- birth and email-->
-                        <div class="d-flex mb-3 gap-2 justify-content-between xbg-secondary rounded-4 p-2">
-                            <!-- Birth date -->
+                        <!-- birth and email -->
+                        <div class="d-flex mb-3 gap-2 justify-content-between rounded-4 p-2" style="background: #f8f9fa;">
                             <div class="w-100">
                                 <label class="form-label fw-semibold">
                                     <i class="fad fa-birthday-cake me-1 text-primary"></i> Date de naissance
@@ -146,8 +143,6 @@ return;
                                        name="dateNais" value="<%= patient.getDateNais().format(dateFormatter) %>"
                                        required>
                             </div>
-
-                            <!-- Email -->
                             <div class="w-100">
                                 <label class="form-label fw-semibold">
                                     <i class="fad fa-envelope me-1 text-primary"></i> Adresse email
@@ -173,7 +168,7 @@ return;
                                 <i class="fad fa-save me-2"></i> Enregistrer
                             </button>
                             <button type="button" class="btn btn-outline-secondary flex-fill py-2 rounded-3 fw-semibold"
-                                    onclick="window.location.href='${pageContext.request.contextPath}/patient?action=dashboard'">
+                                    onclick="window.location.href='${pageContext.request.contextPath}/<%= userRole %>?action=dashboard'">
                                 <i class="fad fa-times me-2"></i> Annuler
                             </button>
                         </div>

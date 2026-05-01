@@ -276,4 +276,47 @@ public class DisponibiliteService {
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }
+
+    // filter disponibilité admin
+    public ServiceResult filterDispoAdmin(String idMed,
+                                     LocalDate dateDebut, LocalDate dateFin, LocalTime heureDebut, LocalTime heureFin) {
+        try {
+            // Validation: id_med
+            if (idMed == null || idMed.isEmpty()) {
+                return new ServiceResult(false, "Veuillez choisir un médecin d'abord.");
+            }
+
+            // Validation: date_dispo
+            if ((dateDebut != null && dateDebut.isBefore(LocalDate.now()))
+                    || (dateFin != null && dateFin.isBefore(LocalDate.now()))) {
+                return new ServiceResult(false, "Les dates ne doivent être dans le passé.");
+            }
+            if (dateDebut != null && dateFin != null && dateDebut.isAfter(dateFin)) {
+                return new ServiceResult(false, "La date de début ne doit pas être après la date de fin.");
+            }
+
+            // Validation: heure_dispo
+            if (heureDebut != null && heureFin != null && heureDebut.isAfter(heureFin)) {
+                return new ServiceResult(false, "L'heure de début ne doit pas être après l'heure de fin.");
+            }
+
+            // Validation: id_med
+            MedecinDAO medecinDAO = new MedecinDAO();
+            if (medecinDAO.findById(idMed) == null) {
+                return new ServiceResult(false, "Le médecin avec l'ID <b>" + idMed + "</b> n'existe pas.");
+            }
+
+            // Filter disponibilite
+            return new ServiceResult(true,
+                    null, dispoDAO.filterDisponibiliteAdmin(idMed, dateDebut, dateFin, heureDebut, heureFin));
+
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error filtering disponibilité", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
 }

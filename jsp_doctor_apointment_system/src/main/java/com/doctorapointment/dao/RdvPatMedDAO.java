@@ -258,4 +258,129 @@ public class RdvPatMedDAO {
 
         return listPat;
     }
+
+    // Filter all appointments for admin
+    public static List<RdvPatMed> filterRdvAdmin(String search,
+                                                 LocalDate dateRdvDebut, LocalDate dateRdvFin,
+                                                 String etatRdv, LocalTime heureDebut, LocalTime heureFin) throws SQLException {
+        List<RdvPatMed> listRdv = new ArrayList<>();
+
+        String query = "SELECT rdv.id_rdv, " +
+                "CONCAT(med.nom_med, ' ', med.prenom_med) AS nom_complet_med, " +
+                "CONCAT(pat.nom_pat, ' ', pat.prenom_pat) AS nom_complet_pat, " +
+                "med.specialite, pat.email_pat, pat.date_nais, " +
+                "rdv.date_rdv, rdv.etat_rdv, " +
+                "rdv.heure_debut, rdv.heure_fin, rdv.date_pris_rdv, med.taux_horaire " +
+                "FROM rdv rdv " +
+                "JOIN medecin med ON med.id_med = rdv.rdv_id_med " +
+                "JOIN patient pat ON pat.id_pat = rdv.rdv_id_pat " +
+                "WHERE 1=1 ";
+
+        // Filter by search (patient name, doctor name, or RDV ID)
+        if (search != null && !search.isEmpty()) {
+            query += "AND (rdv.id_rdv LIKE ? OR CONCAT(med.nom_med, ' ', med.prenom_med) LIKE ? OR CONCAT(pat.nom_pat, ' ', pat.prenom_pat) LIKE ?) ";
+        }
+
+        // Filter by status
+        if (etatRdv != null && !etatRdv.equals("all")) {
+            if (etatRdv.equals("dépassé")) {
+                query += "AND (rdv.date_rdv < CURDATE() OR (rdv.date_rdv = CURDATE() AND rdv.heure_fin < NOW())) ";
+            } else if (etatRdv.equals("en attente")) {
+                query += "AND rdv.etat_rdv = 'en attente' AND (rdv.date_rdv > CURDATE() OR (rdv.date_rdv = CURDATE() AND rdv.heure_debut >= NOW())) ";
+            } else {
+                query += "AND rdv.etat_rdv = ? ";
+            }
+        }
+
+        // Filter by date range
+        if (dateRdvDebut != null && dateRdvFin != null) {
+            query += "AND rdv.date_rdv BETWEEN ? AND ? ";
+        } else if (dateRdvDebut != null) {
+            query += "AND rdv.date_rdv >= ? ";
+        } else if (dateRdvFin != null) {
+            query += "AND rdv.date_rdv <= ? ";
+        }
+
+        // Filter by time range
+        if (heureDebut != null && heureFin != null) {
+            query += "AND rdv.heure_debut >= ? AND rdv.heure_fin <= ? ";
+        } else if (heureDebut != null) {
+            query += "AND rdv.heure_debut >= ? ";
+        } else if (heureFin != null) {
+            query += "AND rdv.heure_fin <= ? ";
+        }
+
+        query += " ORDER BY rdv.date_rdv DESC, rdv.heure_debut DESC, rdv.id_rdv DESC ";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            int index = 1;
+
+            // Set search parameters
+            if (search != null && !search.isEmpty()) {
+                String searchPattern = "%" + search + "%";
+                stmt.setString(index++, searchPattern);
+                stmt.setString(index++, searchPattern);
+                stmt.setString(index++, searchPattern);
+            }
+
+            // Set status parameter (only for simple statuses like 'confirmé', 'annulé')
+            if (etatRdv != null && !etatRdv.equals("all") && !etatRdv.equals("dépassé") && !etatRdv.equals("en attente")) {
+                stmt.setString(index++, etatRdv);
+            }
+
+            // Set date parameters
+            if (dateRdvDebut != null && dateRdvFin != null) {
+                stmt.setObject(index++, dateRdvDebut);
+                stmt.setObject(index++, dateRdvFin);
+            } else if (dateRdvDebut != null) {
+                stmt.setObject(index++, dateRdvDebut);
+            } else if (dateRdvFin != null) {
+                stmt.setObject(index++, dateRdvFin);
+            }
+
+            // Set time parameters
+            if (heureDebut != null && heureFin != null) {
+                stmt.setObject(index++, heureDebut);
+                stmt.setObject(index++, heureFin);
+            } else if (heureDebut != null) {
+                stmt.setObject(index++, heureDebut);
+            } else if (heureFin != null) {
+                stmt.setObject(index++, heureFin);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                RdvPatMed rdvPatMed = new RdvPatMed();
+                rdvPatMed.setIdRdv(rs.getInt("id_rdv"));
+                rdvPatMed.setDatePrisRdv(rs.getObject("date_pris_rdv", LocalDateTime.class));
+                rdvPatMed.setRdvNomMed(rs.getString("nom_complet_med"));
+                rdvPatMed.setRdvNomPat(rs.getString("nom_complet_pat"));
+                rdvPatMed.setSpecialite(rs.getString("specialite"));
+                rdvPatMed.setEmailPat(rs.getString("email_pat"));
+                rdvPatMed.setDateNais(rs.getObject("date_nais", LocalDate.class));
+
+                // Calculate status (dépassé if applicable)
+                LocalDateTime rdvEnd = LocalDateTime.of(rs.getObject("date_rdv", LocalDate.class),
+                        rs.getObject("heure_fin", LocalTime.class));
+                String dbStatus = rs.getString("etat_rdv");
+                if (rdvEnd.isBefore(LocalDateTime.now()) && !dbStatus.equals("annulé")) {
+                    rdvPatMed.setEtatRdv("dépassé");
+                } else {
+                    rdvPatMed.setEtatRdv(dbStatus);
+                }
+
+                rdvPatMed.setDateRdv(rs.getObject("date_rdv", LocalDate.class));
+                rdvPatMed.setHeureDebut(rs.getObject("heure_debut", LocalTime.class));
+                rdvPatMed.setHeureFin(rs.getObject("heure_fin", LocalTime.class));
+                rdvPatMed.setTauxHoraire(rs.getDouble("taux_horaire"));
+
+                listRdv.add(rdvPatMed);
+            }
+        }
+
+        return listRdv;
+    }
 }

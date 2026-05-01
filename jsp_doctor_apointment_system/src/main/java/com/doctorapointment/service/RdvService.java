@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 public class RdvService {
     private static final Logger log = LoggerFactory.getLogger(RdvService.class);
@@ -240,28 +241,28 @@ public class RdvService {
 //        }
 //    }
 
-    // delete rdv medecin
-    public ServiceResult deleteRdvMedecin(Rdv rdv) {
-        try {
-
-            // Validation: rdv
-            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
-            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
-            if (!rdvFind.getRdvIdMed().equals(rdv.getRdvIdMed())) {
-                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
-            }
-
-            // delete rdv
-            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
-            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
-        } catch (SQLException e) {
-            log.error("Error SQL", e);
-            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
-        } catch (Exception e) {
-            log.error("Error deleting rdv medecin", e);
-            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
-        }
-    }
+//    // delete rdv medecin
+//    public ServiceResult deleteRdvMedecin(Rdv rdv) {
+//        try {
+//
+//            // Validation: rdv
+//            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+//            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+//            if (!rdvFind.getRdvIdMed().equals(rdv.getRdvIdMed())) {
+//                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+//            }
+//
+//            // delete rdv
+//            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
+//            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
+//        } catch (SQLException e) {
+//            log.error("Error SQL", e);
+//            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+//        } catch (Exception e) {
+//            log.error("Error deleting rdv medecin", e);
+//            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+//        }
+//    }
 
     // delete rdv
     public ServiceResult deleteRdv(Rdv rdv) {
@@ -507,9 +508,6 @@ public class RdvService {
             // Validation: rdv
             Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
-            if (!rdvFind.getEtatRdv().equals("en attente")) {
-                return new ServiceResult(false, "Cet rendez-vous n'est plus en attente.");
-            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
@@ -570,9 +568,6 @@ public class RdvService {
             // Validation: rdv
             Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
-            if (!rdvFind.getEtatRdv().equals("en attente")) {
-                return new ServiceResult(false, "Cet rendez-vous n'est plus en attente.");
-            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
@@ -635,6 +630,86 @@ public class RdvService {
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         } catch (Exception e) {
             log.error("Error SQL", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // Filter all appointments for admin
+    public ServiceResult filterRdvAdmin(String search, LocalDate dateRdvDebut, LocalDate dateRdvFin,
+                                        String etatRdv, LocalTime heureDebut, LocalTime heureFin) {
+        try {
+            // Validation
+            search = search == null ? "" : search.trim();
+            etatRdv = etatRdv == null || etatRdv.isEmpty() ? "all" : etatRdv.trim().toLowerCase();
+
+            // Validate date range
+            if (dateRdvDebut != null && dateRdvFin != null && dateRdvFin.isBefore(dateRdvDebut)) {
+                return new ServiceResult(false, "La date de fin ne doit pas être avant la date de début");
+            }
+
+            // Validate time range
+            if (heureDebut != null && heureFin != null && heureFin.isBefore(heureDebut)) {
+                return new ServiceResult(false, "L'heure de fin ne doit pas être avant l'heure de début");
+            }
+
+            // Filter appointments
+            List<RdvPatMed> rdvList = RdvPatMedDAO.filterRdvAdmin(search, dateRdvDebut, dateRdvFin,
+                    etatRdv, heureDebut, heureFin);
+
+            return new ServiceResult(true, null, rdvList);
+
+        } catch (SQLException e) {
+            log.error("Error SQL in filterRdvAdmin", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error filtering appointments for admin", e);
+            return new ServiceResult(false, "Une erreur inattendue s'est produite.");
+        }
+    }
+
+    // update rdv admin
+    public ServiceResult updateRdv(Rdv rdv) {
+        try {
+            // Validation: heure_rdv
+            if (rdv.getHeureDebut() == null) return new ServiceResult(false, "L'heure de début est requise.");
+            if (rdv.getHeureFin() == null) return new ServiceResult(false, "L'heure de fin est requise.");
+            if (rdv.getHeureDebut().isAfter(rdv.getHeureFin())) {
+                return new ServiceResult(false, "L'heure de fin ne doit pas être avant l'heure de début.");
+            }
+            long duree = ChronoUnit.MINUTES.between(rdv.getHeureDebut(), rdv.getHeureFin());
+            if (duree < 10) {
+                return new ServiceResult(false, "Le rendez-vous ne doit pas être moins de 10 minutes.");
+            }
+
+            // Validation: rdv
+            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+            if (!rdvFind.getEtatRdv().equals("en attente")) {
+                return new ServiceResult(false, "Seul un rendez-vous en attente peut être modifié.");
+            }
+            if (LocalDateTime.of(rdvFind.getDateRdv(), rdv.getHeureDebut()).isBefore(LocalDateTime.now())) {
+                return new ServiceResult(false, "L'heure de début est déjà dépassée.");
+            }
+
+            // conflit
+            Rdv rdvConflit = new Rdv();
+            rdvConflit.setIdRdv(rdv.getIdRdv());
+            rdvConflit.setDateRdv(rdvFind.getDateRdv());
+            rdvConflit.setHeureDebut(rdv.getHeureDebut());
+            rdvConflit.setHeureFin(rdv.getHeureFin());
+            rdvConflit.setRdvIdMed(rdvFind.getRdvIdMed());
+            if (rdvDAO.existConflitUpdate(rdvConflit)) {
+                return new ServiceResult(false, "Ce créneau n'est pas disponible, veuillez modifier.");
+            }
+
+            // update rdv
+            if (rdvDAO.updateRdv(rdvConflit)) return new ServiceResult(true, null);
+            return new ServiceResult(false, "Une erreur est survenue lors de la modification du rendez-vous.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error updating rdv", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }

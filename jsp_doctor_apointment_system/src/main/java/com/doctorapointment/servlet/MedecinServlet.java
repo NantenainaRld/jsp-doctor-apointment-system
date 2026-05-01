@@ -1,6 +1,5 @@
 package com.doctorapointment.servlet;
 
-import com.doctorapointment.dao.MedecinDAO;
 import com.doctorapointment.model.Disponibilite;
 import com.doctorapointment.model.Medecin;
 import com.doctorapointment.model.Rdv;
@@ -15,14 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/medecin")
-public class MedecinServelet extends HttpServlet {
+public class MedecinServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(Medecin.class);
 
@@ -36,16 +34,6 @@ public class MedecinServelet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/medecin?action=login");
             return;
         }
-
-//        // Test data - TODO: Remove before production
-//        Medecin medecin1 = new Medecin();
-//        medecin1.setIdMed("m004");
-//        medecin1.setNomMed("FULGENCE");
-//        medecin1.setPrenomMed("Honoré");
-//        medecin1.setTauxHoraire(5000);
-//        medecin1.setLieu("Tanambao");
-//        medecin1.setSpecialite("dentiste");
-//        session.setAttribute("medecin", medecin1);
 
         try {
             switch (action) {
@@ -155,7 +143,7 @@ public class MedecinServelet extends HttpServlet {
                 }
                 // Page: top medecin - show top 5 doctors
                 case "top_medecin": {
-                    if (session.getAttribute("patient") == null || session.getAttribute("admin") == null) {
+                    if (session.getAttribute("patient") == null && session.getAttribute("admin") == null) {
                         response.sendRedirect(request.getContextPath() + "/");
                         return;
                     }
@@ -792,7 +780,7 @@ public class MedecinServelet extends HttpServlet {
                 // Update medecin profile - POST handler
                 case "update_medecin_submit": {
                     // Verify medecin is logged in
-                    if (session.getAttribute("medecin") == null) {
+                    if (session.getAttribute("medecin") == null && session.getAttribute("admin") == null) {
                         response.sendRedirect(request.getContextPath() + "/medecin?action=login");
                         return;
                     }
@@ -861,8 +849,18 @@ public class MedecinServelet extends HttpServlet {
                         if (freshMedecin.isSuccess()) {
                             session.setAttribute("medecin", freshMedecin.getData());
                         }
-                        session.setAttribute("success_message", "Votre profil a été mis à jour avec succès.");
-                        response.sendRedirect(request.getContextPath() + "/medecin?action=dashboard");
+
+                        // Set different message based on who is logged in
+                        if (session.getAttribute("admin") != null) {
+                            session.setAttribute("success_message", "Médecin modifié avec succès.");
+                            // Admin is updating, go back to admin dashboard
+                            response.sendRedirect(request.getContextPath() + "/admin?action=dashboard");
+                        } else {
+                            session.setAttribute("success_message", "Votre profil a été mis à jour avec succès.");
+                            // Medecin is updating own profile, go back to medecin dashboard
+                            response.sendRedirect(request.getContextPath() + "/medecin?action=dashboard");
+                        }
+
                     } else {
                         request.setAttribute("error_message", serRes.getErrorMessage());
                         // Fetch current medecin data to preserve form values

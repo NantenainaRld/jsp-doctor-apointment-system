@@ -208,4 +208,69 @@ public class DisponibiliteDAO {
             return stmt.executeUpdate() >= 0;
         }
     }
+
+    // filter disponibilite admin
+    public List<Disponibilite> filterDisponibiliteAdmin(String idMed,
+                                                   LocalDate datetDebut, LocalDate dateFin,
+                                                   LocalTime heureDebut, LocalTime heureFin) throws SQLException {
+        List<Disponibilite> listDispo = new ArrayList<>();
+
+        String query = "SELECT id_dispo, date_dispo, debut_dispo, fin_dispo " +
+                "FROM disponibilite WHERE dispo_id_med = ? ";
+
+        // Verification: date_dispo
+        if (datetDebut != null && dateFin != null) {
+            query += "AND date_dispo BETWEEN ? AND ? "; // dateDebut , dateFin
+        } else if (datetDebut != null) {
+            query += "AND date_dispo >= ?  "; // dateDebut
+        } else if (dateFin != null) {
+            query += "AND date_dispo <= ? "; // dateFin
+        }
+
+        // Verification: heure_dispo
+        if (heureDebut != null && heureFin != null) {
+            query += "AND debut_dispo <= ? AND fin_dispo >= ? "; // heureDebut, heureFin
+        } else if (heureDebut != null) {
+            query += "AND debut_dispo >= ? "; // heureDebut
+        } else if (heureFin != null) {
+            query += "AND debut_dispo <= ? "; // heureFin
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, idMed);
+            int index = 2;
+            if (datetDebut != null && dateFin != null) {
+                stmt.setObject(index++, datetDebut);
+                stmt.setObject(index++, dateFin);
+            } else if (datetDebut != null) {
+                stmt.setObject(index++, datetDebut);
+            } else if (dateFin != null) {
+                stmt.setObject(index++, dateFin);
+            }
+            if (heureDebut != null && heureFin != null) {
+                stmt.setObject(index++, heureDebut);
+                stmt.setObject(index++, heureFin);
+            } else if (heureDebut != null) {
+                stmt.setObject(index++, heureDebut);
+            } else if (heureFin != null) {
+                stmt.setObject(index++, heureFin);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Disponibilite disponibilite = new Disponibilite();
+                disponibilite.setIdDispo(rs.getInt("id_dispo"));
+                disponibilite.setDateDispo(rs.getObject("date_dispo", LocalDate.class));
+                disponibilite.setDebutDispo(rs.getObject("debut_dispo", LocalTime.class));
+                disponibilite.setFinDispo(rs.getObject("fin_dispo", LocalTime.class));
+
+                listDispo.add(disponibilite);
+            }
+        }
+
+        return listDispo;
+    }
+
 }

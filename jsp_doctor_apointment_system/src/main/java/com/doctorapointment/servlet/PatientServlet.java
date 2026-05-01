@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
-import com.doctorapointment.dao.MedecinDAO;
 import com.doctorapointment.model.Disponibilite;
 import com.doctorapointment.model.Medecin;
 import com.doctorapointment.model.Rdv;
@@ -27,15 +26,15 @@ import jakarta.servlet.http.HttpSession;
  * Servlet implementation class PatientServelet
  */
 @WebServlet("/patient")
-public class PatientServelet extends HttpServlet {
+public class PatientServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(PatientServelet.class);
+    private static final Logger log = LoggerFactory.getLogger(PatientServlet.class);
     private PatientService patSer = new PatientService();
 
     /**
      * Default constructor.
      */
-    public PatientServelet() {
+    public PatientServlet() {
         // TODO Auto-generated constructor stub
     }
 

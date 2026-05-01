@@ -175,7 +175,7 @@ return;
                                 <i class="fad fa-save me-2"></i> Enregistrer
                             </button>
                             <button type="button" class="btn btn-outline-secondary flex-fill py-2 rounded-3 fw-semibold"
-                                    onclick="window.location.href='${pageContext.request.contextPath}/medecin?action=dashboard'">
+                                    onclick="window.history.back()">
                                 <i class="fad fa-times me-2"></i> Annuler
                             </button>
                         </div>
