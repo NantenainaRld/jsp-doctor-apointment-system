@@ -95,20 +95,22 @@
         }
         %>
 
-        <!-- Table title -->
-        <div class="mt-4 mb-2">
-            <h5 class="fw-semibold mb-2">
+        <!-- Table title with top med btn -->
+        <div class="mt-4 mb-2 d-flex justify-content-between align-items-center">
+            <h5 class="fw-semibold mb-0">
                 <i class="fad fa-user-md me-2"></i> Liste des médecins
                 <%
-                List
-                <Medecin> listMed = (List
-                    <Medecin>) request.getAttribute("listMed");
-                        int totalCount = (listMed != null) ? listMed.size() : 0;
-                        %>
-                        <span class="badge xbg-secondary rounded-pill ms-2 text-secondary" style="font-size: 0.7rem;"><%= totalCount %></span>
+                List<Medecin> listMed = (List<Medecin>) request.getAttribute("listMed");
+                int totalCount = (listMed != null) ? listMed.size() : 0;
+                %>
+                <span class="badge bg-secondary rounded-pill ms-2 text-white" style="font-size: 0.7rem;"><%= totalCount %></span>
             </h5>
-            <hr class="mt-1 mb-2">
+            <button class="btn btn-outline-warning btn-sm"
+                    onclick="window.location.href='${pageContext.request.contextPath}/medecin?action=top_medecin'">
+                <i class="fad fa-trophy me-1"></i> Top Médecins
+            </button>
         </div>
+        <hr class="mt-1 mb-3">
 
         <!-- Scrollable table body -->
         <div class="border rounded overflow-auto">
@@ -128,7 +130,7 @@
                 if (listMed == null || listMed.isEmpty()) {
                 %>
                 <tr>
-                    <td colspan="5" class="text-center text-muted py-4">
+                    <td colspan="6" class="text-center text-muted py-4">
                         <i class="fad fa-user-slash me-2"></i> Aucun médecin trouvé
                     </td>
                 </tr>

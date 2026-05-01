@@ -43,8 +43,10 @@ public class RdvService {
 
             // Validation: durée min/max
             long duree = ChronoUnit.MINUTES.between(heureDebut, heureFin);
-            if (duree < 10) return new ServiceResult(false, "La durée du rendez-vous doit être au moins <b>10 minutes</b>.");
-            if (duree > 180) return new ServiceResult(false, "La durée du rendez-vous ne doit pas dépasser <b>3 heures</b>.");
+            if (duree < 10)
+                return new ServiceResult(false, "La durée du rendez-vous doit être au moins <b>10 minutes</b>.");
+            if (duree > 180)
+                return new ServiceResult(false, "La durée du rendez-vous ne doit pas dépasser <b>3 heures</b>.");
 
             // Validation: date + heure dans le passé
             LocalDateTime dateHeureDebut = LocalDateTime.of(dateRdv, heureDebut);
@@ -77,7 +79,7 @@ public class RdvService {
                 return new ServiceResult(false, "Ce médecin n'est pas disponible dans la date et créneau choisi.");
             }
             if (LocalDateTime.of(disponibilite.getDateDispo(), disponibilite.getFinDispo()).isBefore(LocalDateTime.now())) {
-                return  new ServiceResult(false,"Cette disponibilité est déjà dépssée.");
+                return new ServiceResult(false, "Cette disponibilité est déjà dépssée.");
             }
 
             // Verification: chevauchement
@@ -215,28 +217,28 @@ public class RdvService {
         }
     }
 
-    // delete rdv patient
-    public ServiceResult deleteRdvPatient(Rdv rdv) {
-        try {
-
-            // Validation: rdv
-            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
-            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
-            if (!rdvFind.getRdvIdPat().equals(rdv.getRdvIdPat())) {
-                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
-            }
-
-            // delete rdv
-            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
-            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
-        } catch (SQLException e) {
-            log.error("Error SQL", e);
-            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
-        } catch (Exception e) {
-            log.error("Error deleting rdv patient", e);
-            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
-        }
-    }
+//    // delete rdv patient
+//    public ServiceResult deleteRdvPatient(Rdv rdv) {
+//        try {
+//
+//            // Validation: rdv
+//            Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
+//            if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
+//            if (!rdvFind.getRdvIdPat().equals(rdv.getRdvIdPat())) {
+//                return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
+//            }
+//
+//            // delete rdv
+//            if (rdvDAO.deleteRdv(rdv.getIdRdv())) return new ServiceResult(true, null);
+//            return new ServiceResult(false, "Une erreur est survenue lors de la suppression du rendez-vous.");
+//        } catch (SQLException e) {
+//            log.error("Error SQL", e);
+//            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+//        } catch (Exception e) {
+//            log.error("Error deleting rdv patient", e);
+//            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+//        }
+//    }
 
     // delete rdv medecin
     public ServiceResult deleteRdvMedecin(Rdv rdv) {
@@ -475,9 +477,6 @@ public class RdvService {
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
             if (!rdvFind.getRdvIdMed().equals(rdv.getRdvIdMed()))
                 return new ServiceResult(false, "Cet rendez-vous ne vous appartient pas.");
-            if (!rdvFind.getEtatRdv().equals("en attente")) {
-                return new ServiceResult(false, "Cet rendez-vous n'est plus en attente.");
-            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
@@ -541,9 +540,6 @@ public class RdvService {
             // Validation: rdv
             Rdv rdvFind = rdvDAO.findById(rdv.getIdRdv());
             if (rdvFind == null) return new ServiceResult(false, "Le rendez-vous choisi n'est pas trouvé.");
-            if (!rdvFind.getEtatRdv().equals("en attente")) {
-                return new ServiceResult(false, "Cet rendez-vous n'est plus en attente.");
-            }
 
             // find email patient
             PatientDAO patientDao = new PatientDAO();
@@ -620,6 +616,25 @@ public class RdvService {
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         } catch (Exception e) {
             log.error("Error finding rdv patient by id", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    //find by id
+    public ServiceResult findById(int idRdv) {
+        try {
+            Rdv rdv = rdvDAO.findById(idRdv);
+            if (rdv == null) {
+                return new ServiceResult(false,
+                        "Le rendez-vous numéro <b>" + idRdv + "</b> n'existe pas.");
+            }
+
+            return  new ServiceResult(true,null,rdv);
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error SQL", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }

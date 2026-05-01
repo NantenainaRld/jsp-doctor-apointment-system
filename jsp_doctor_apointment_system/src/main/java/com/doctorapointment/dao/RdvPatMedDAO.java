@@ -1,5 +1,6 @@
 package com.doctorapointment.dao;
 
+import com.doctorapointment.model.Patient;
 import com.doctorapointment.model.RdvPatMed;
 import com.mysql.cj.protocol.Resultset;
 import org.slf4j.Logger;
@@ -201,4 +202,60 @@ public class RdvPatMedDAO {
         return listRdv;
     }
 
+    // Filter patients by doctor (patients who have appointments with this doctor)
+    public static List<Patient> filterPatMed(String idMed, String search, LocalDate dateNaisDebut, LocalDate dateNaisFin) throws SQLException {
+        String query = "SELECT DISTINCT pat.id_pat, pat.nom_pat, pat.prenom_pat, pat.date_nais, pat.email_pat " +
+                "FROM patient pat " +
+                "JOIN rdv rdv ON rdv.rdv_id_pat = pat.id_pat " +
+                "WHERE rdv.rdv_id_med = ? " +
+                "AND (pat.id_pat LIKE ? OR CONCAT(pat.nom_pat, ' ', pat.prenom_pat) LIKE ? OR pat.email_pat LIKE ?) ";
+
+        // Filter by date of birth
+        if (dateNaisDebut != null && dateNaisFin != null) {
+            query += "AND pat.date_nais BETWEEN ? AND ? ";
+        } else if (dateNaisDebut != null) {
+            query += "AND pat.date_nais >= ? ";
+        } else if (dateNaisFin != null) {
+            query += "AND pat.date_nais <= ? ";
+        }
+
+        query += "ORDER BY pat.nom_pat, pat.prenom_pat";
+
+        List<Patient> listPat = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, idMed);
+            String searchPattern = "%" + search + "%";
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+
+            int index = 5;
+            if (dateNaisDebut != null && dateNaisFin != null) {
+                stmt.setObject(index++, dateNaisDebut);
+                stmt.setObject(index++, dateNaisFin);
+            } else if (dateNaisDebut != null) {
+                stmt.setObject(index++, dateNaisDebut);
+            } else if (dateNaisFin != null) {
+                stmt.setObject(index++, dateNaisFin);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Patient patient = new Patient();
+                patient.setIdPat(rs.getString("id_pat"));
+                patient.setNomPat(rs.getString("nom_pat"));
+                patient.setPrenomPat(rs.getString("prenom_pat"));
+                patient.setEmailPat(rs.getString("email_pat"));
+                patient.setDateNais(rs.getObject("date_nais", LocalDate.class));
+
+                listPat.add(patient);
+            }
+        }
+
+        return listPat;
+    }
 }

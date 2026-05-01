@@ -197,4 +197,15 @@ public class DisponibiliteDAO {
             return null;
         }
     }
+
+    // delete dispo
+    public boolean deleteDispo(int idDispo) throws SQLException {
+        String query = "DELETE FROM disponibilite WHERE id_dispo = ? ";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idDispo);
+
+            return stmt.executeUpdate() >= 0;
+        }
+    }
 }

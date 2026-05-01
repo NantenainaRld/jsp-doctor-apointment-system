@@ -3,7 +3,9 @@ package com.doctorapointment.service;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
+import com.doctorapointment.dao.RdvPatMedDAO;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,22 +124,30 @@ public class PatientService {
     public ServiceResult filterPatient(String search, String dateNaisDebut, String dateNaisFin) {
         search = search == null ? "" : search;
         LocalDate dNaisDebut = null, dNaisFin = null;
-
         try {
-            if (dateNaisDebut != null && !dateNaisDebut.isEmpty()) {
-                dNaisDebut = LocalDate.parse(dateNaisDebut);
-            }
-            if (dateNaisFin != null && !dateNaisFin.isEmpty()) {
-                dNaisFin = LocalDate.parse(dateNaisFin);
-            }
-        } catch (DateTimeParseException e) {
-            log.error("Error filtering patient", e);
-            return new ServiceResult(false, "Une erreur technique est survenue"
-                    + " lors de la recherche des patients. Veuillez réssayer");
-        }
 
-        // dao: filter patient
-        return new ServiceResult(true, null, PatientDAO.filterPatient(search, dNaisDebut, dNaisFin));
+            try {
+                if (dateNaisDebut != null && !dateNaisDebut.isEmpty()) {
+                    dNaisDebut = LocalDate.parse(dateNaisDebut);
+                }
+                if (dateNaisFin != null && !dateNaisFin.isEmpty()) {
+                    dNaisFin = LocalDate.parse(dateNaisFin);
+                }
+            } catch (DateTimeParseException e) {
+                log.error("Error filtering patient", e);
+                return new ServiceResult(false, "Une erreur technique est survenue"
+                        + " lors de la recherche des patients. Veuillez réssayer");
+            }
+
+            // dao: filter patient
+            return new ServiceResult(true, null, PatientDAO.filterPatient(search, dNaisDebut, dNaisFin));
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error filtering patient", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
     }
 
     // update patient
@@ -274,6 +284,34 @@ public class PatientService {
         } catch (Exception e) {
             log.error("Error finding patient by id", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // Filter patients by medecin (patients who have appointments with this doctor)
+    public ServiceResult filterPatMed(String idMed, String search, LocalDate dateNaisDebut, LocalDate dateNaisFin) {
+        try {
+            // Validation
+            if (idMed == null || idMed.isEmpty()) {
+                return new ServiceResult(false, "ID du médecin requis.");
+            }
+
+            if (search == null) search = "";
+
+            if (dateNaisDebut != null && dateNaisFin != null && dateNaisDebut.isAfter(dateNaisFin)) {
+                return new ServiceResult(false, "La date de début ne doit pas être après la date de fin.");
+            }
+
+            // Filter patients
+            List<Patient> patients = RdvPatMedDAO.filterPatMed(idMed, search, dateNaisDebut, dateNaisFin);
+
+            return new ServiceResult(true, null, patients);
+
+        } catch (SQLException e) {
+            log.error("Error SQL in filterPatMed", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error in filterPatMed", e);
+            return new ServiceResult(false, "Une erreur inattendue s'est produite.");
         }
     }
 }

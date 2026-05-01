@@ -31,6 +31,9 @@ public class DisponibiliteService {
             if (disponibilite.getDateDispo().isBefore(LocalDate.now())) {
                 return new ServiceResult(false, "La date de la disponibilité ne doit pas être dans le passe.");
             }
+            if (LocalDateTime.of(disponibilite.getDateDispo(), disponibilite.getFinDispo()).isBefore(LocalDateTime.now())) {
+                return new ServiceResult(false, "La date et fin de l'horaire ne peut pas être dans le passé.");
+            }
 
             // Validation: debut and fin
             if (disponibilite.getDebutDispo() == null) {
@@ -73,7 +76,8 @@ public class DisponibiliteService {
     }
 
     // filter disponibilité
-    public ServiceResult filterDispo(String idMed, LocalDate dateDebut, LocalDate dateFin, LocalTime heureDebut, LocalTime heureFin) {
+    public ServiceResult filterDispo(String idMed,
+                                     LocalDate dateDebut, LocalDate dateFin, LocalTime heureDebut, LocalTime heureFin) {
         try {
             // Validation: id_med
             if (idMed == null || idMed.isEmpty()) {
@@ -222,6 +226,53 @@ public class DisponibiliteService {
             return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
         } catch (Exception e) {
             log.error("Error finding disponibilite by id", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // delete dispo medecin
+    public ServiceResult deleteDispoMedecin(String idMed, int idDispo) {
+        try {
+            // Verification: disponibilite
+            Disponibilite disponibilite = dispoDAO.findById(idDispo);
+            if (disponibilite == null)
+                return new ServiceResult(false,
+                        "L'horaire numéro <b>" + idDispo + "</b> n'existe pas.");
+            idMed = idMed.trim();
+            if (!disponibilite.getDispoIdMed().equals(idMed))
+                return new ServiceResult(false, "Cet horaire ne vous appartient pas");
+
+            if (dispoDAO.deleteDispo(idDispo))
+                return new ServiceResult(true, null);
+
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression de l'horaire.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting disponibilite", e);
+            return new ServiceResult(false, "Une erreur innatendue s'est produite.");
+        }
+    }
+
+    // delete dispo
+    public ServiceResult deleteDispo(int idDispo) {
+        try {
+            // Verification: disponibilite
+            Disponibilite disponibilite = dispoDAO.findById(idDispo);
+            if (disponibilite == null)
+                return new ServiceResult(false,
+                        "L'horaire numéro <b>" + idDispo + "</b> n'existe pas.");
+
+            if (dispoDAO.deleteDispo(idDispo))
+                return new ServiceResult(true, null);
+
+            return new ServiceResult(false, "Une erreur est survenue lors de la suppression de l'horaire.");
+        } catch (SQLException e) {
+            log.error("Error SQL", e);
+            return new ServiceResult(false, "Erreur technique, veuillez réessayer.");
+        } catch (Exception e) {
+            log.error("Error deleting disponibilite", e);
             return new ServiceResult(false, "Une erreur innatendue s'est produite.");
         }
     }

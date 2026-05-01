@@ -133,6 +133,12 @@
                             <i class="fad fa-user-plus me-1"></i> Créer un compte
                         </a>
                     </div>
+                    <!-- Back to home link -->
+                    <div class="text-center mt-4">
+                        <a href="${pageContext.request.contextPath}/" class="text-decoration-none">
+                            <i class="fad fa-home me-1"></i> Retour à l'accueil
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

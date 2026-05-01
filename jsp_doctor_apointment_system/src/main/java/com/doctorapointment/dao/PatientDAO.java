@@ -110,23 +110,21 @@ public class PatientDAO {
     }
 
     // Filter patient
-    // TODO: add filter by date_nais
-    public static List<Patient> filterPatient(String search, LocalDate dateNaisDebut, LocalDate dateNaisFin) {
+    public static List<Patient> filterPatient(String search, LocalDate dateNaisDebut, LocalDate dateNaisFin) throws SQLException {
         String query = "SELECT id_pat, nom_pat, prenom_pat, date_nais, email_pat FROM patient WHERE "
                 + "(id_pat LIKE ? OR CONCAT(nom_pat, ' ', prenom_pat) LIKE ? OR email_pat LIKE ?) ";
 
         // search: date_nais
-        if (dateNaisDebut == null) {
-            if (dateNaisFin != null) {
-                query += "AND date_nais <= ? ";
-            }
-        } else {
-            if (dateNaisFin == null) {
-                query += "AND date_nais >= ? ";
-            } else {
-                query += "AND date_nais BETWEEN ? AND ? ";
-            }
+        if (dateNaisDebut != null && dateNaisFin != null) {
+            query += "AND date_nais BETWEEN ? AND ? ";
         }
+        if (dateNaisDebut != null) {
+            query += "AND date_nais >= ? ";
+        }
+        if (dateNaisFin != null) {
+            query += "AND date_nais <= ? ";
+        }
+
         query += "ORDER BY nom_pat";
 
         // patient object list
@@ -159,10 +157,7 @@ public class PatientDAO {
 
                 listPat.add(patient);
             }
-        } catch (SQLException e) {
-            log.error("Error filtering patient", e);
         }
-
         return listPat;
     }
 

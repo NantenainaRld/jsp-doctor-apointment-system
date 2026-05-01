@@ -49,7 +49,7 @@ public class PatientServelet extends HttpServlet {
         HttpSession session = request.getSession();
         String action = request.getParameter("action");
 
-        if (action == null) {
+        if (action == null || action.trim().isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/patient?action=login");
             return;
         }
@@ -523,7 +523,7 @@ public class PatientServelet extends HttpServlet {
         String action = request.getParameter("action");
 
         // validate action
-        if (action == null) {
+        if (action == null || action.trim().isEmpty()) {
             request.setAttribute("message", "Aucune action spécifiée");
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
             return;
